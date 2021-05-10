@@ -10,7 +10,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import ars.Application;
 import ars.domain.Person;
-import ars.domain.Role;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -27,7 +26,8 @@ class ApplicationTests {
 	@Test
 	public void doesCostructorWork() {
 	    String name = "alex";
-	    Person person = new Person(name, name, null);
+	    Person person = new Person();
+	    person.setFirstname(name);
 	    
 	     assertThat(person.getFirstname())
 	      .isEqualTo(name);
