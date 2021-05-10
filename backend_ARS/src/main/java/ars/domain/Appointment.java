@@ -1,15 +1,16 @@
 package ars.domain;
 
-import java.util.HashSet;
+import java.time.LocalDate;
 import java.util.Set;
 
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,16 +22,22 @@ import lombok.ToString;
 @NoArgsConstructor @Getter @Setter 
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Person {
-
+public class Appointment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-
-	private String firstname;
-	private String lastname;
 	
-	@ElementCollection
+	private LocalDate createdDate;
+	private LocalDate confirmedDate;
+	
 	@Enumerated(EnumType.STRING)
-	private Set<RoleType> roles = new HashSet<>();
+	private Status status = Status.PENDING;
+	
+	@ManyToOne
+	@JoinColumn(name="session_id")
+	private Session session;
+	
+	@ManyToOne
+	@JoinColumn(name="client_id")
+	private Person client;
 }
