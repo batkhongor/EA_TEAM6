@@ -28,8 +28,7 @@ public class ProviderController {
     @Autowired
     private PersonRepository personRepository;
 
-    @Autowired
-    private SessionRepository sessionRepository;
+
 
     //get all providers
     @GetMapping
@@ -40,49 +39,31 @@ public class ProviderController {
 
     //List all sessions for a provider using a given provider ID
     @GetMapping("/sessions/{id}")
-    public List<Session> findById(@PathVariable(name = "id") Integer SessionId) {
-        return sessionRepository.findAll().stream().filter(session -> session.getProvider().getId()==SessionId)
-                .collect(Collectors.toList());
+    public List<Session> findById(@PathVariable(name = "id") Integer personId) {
+        return providerService.findSessionById(personId);
     }
 
 
 
+    @PostMapping("/sessions/{id}")
+    public Session createSession(@Valid @RequestBody Session session, @PathVariable(name="id") Integer providerId) {
 
-
-
-    @PostMapping("/sessions")
-    public Session createSession(@Valid @RequestBody Session session) {
-       /* sessionRepository.findById(session.getId())
-                .ifPresent(c->{
-                    throw new RuntimeException();
-
-                });
-                */
-
-
-        return sessionRepository.save(session);
+        return providerService.createSession(session,providerId );
     }
 
 
     @PutMapping("sessions/{id}")
     public Session updateSession(@PathVariable(name="id") Integer SessionId , @Valid @RequestBody Session session) {
-        Session entity =sessionRepository.findById(SessionId).orElseThrow(RuntimeException::new);
 
-        if(SessionId.equals(session.getId()))
-        {
-            return sessionRepository.save(session);
-        }
-        else
-        {
-            return null;
-        }
+        return providerService.updateSession(SessionId, session);
+
 
 
     }
 
     @DeleteMapping("/sessions/{id}")
     void deleteSession(@PathVariable Integer id) {
-        sessionRepository.deleteById(id);
+                providerService.deleteSession(id);
     }
 
     }
