@@ -31,11 +31,12 @@ public class Session {
 	private int startTime; // 0 - 24
 	private int duration; // in minutes?
 	private String location;
-	
+
 	@ManyToOne
 	@JoinColumn(name="provider_id")
 	private Person provider;
-	
+
 	@OneToMany(mappedBy="session")
 	private List<Appointment> appointmentRequests;
+
 }

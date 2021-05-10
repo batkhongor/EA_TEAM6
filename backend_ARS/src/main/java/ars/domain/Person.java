@@ -29,8 +29,10 @@ public class Person {
 
 	private String firstname;
 	private String lastname;
-	
+
 	@ElementCollection
 	@Enumerated(EnumType.STRING)
 	private Set<RoleType> roles = new HashSet<>();
+
+
 }
