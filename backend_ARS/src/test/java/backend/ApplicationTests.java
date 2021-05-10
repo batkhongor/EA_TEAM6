@@ -1,13 +1,35 @@
 package backend;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import ars.Application;
+import ars.domain.Person;
+import ars.domain.Role;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(
+  classes = Application.class)
+@AutoConfigureMockMvc
 class ApplicationTests {
 
-	@Test
+	@Test 
 	void contextLoads() {
+		
 	}
-
+	
+	
+	@Test
+	public void doesCostructorWork() {
+	    String name = "alex";
+	    Person person = new Person(name, name, null);
+	    
+	     assertThat(person.getFirstname())
+	      .isEqualTo(name);
+	 }
 }
