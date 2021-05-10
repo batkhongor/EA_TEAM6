@@ -47,4 +47,6 @@ public class Person {
 	@ElementCollection
 	@Enumerated(EnumType.STRING)
 	private Set<RoleType> roles = new HashSet<>();
+
+
 }
