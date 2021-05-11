@@ -41,6 +41,7 @@ public class ClientServiceImpl implements ClientService	 {
 		
 		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
 												.orElseThrow(()->new NoSuchElementException("No person with this id"));
+		//Person client = personRepository.finb
 		
 		if(	client.getRoles().stream().noneMatch(r->r.equals(RoleType.CUSTOMER))) { 
 			throw new IllegalAccessException ("Only customers can create appointments");
