@@ -5,18 +5,23 @@ import java.util.List;
 
 import ars.domain.Appointment;
 import ars.domain.Person;
+import ars.domain.Session;
 
 public interface ClientService {
 
-	List<Appointment> findAllClientAppointments(Integer ClientId);
+	List<Appointment> findAllClientAppointments(String email);
 	
-	void addNewAppointment(Integer clientId,LocalDate date, Integer timeInHours) throws IllegalAccessException;
+	void addNewAppointment( String email, Integer sessionId) throws IllegalAccessException;
 	
 	void deleteAppointment(Integer personId,Integer appointmentId) throws IllegalAccessException;
 	
 	void editAppointment(Integer appointmentId, LocalDate newDate, Integer newTime);
 	
 	void pickNewConfirmedAppointment(Integer sessionId) throws Exception;
+	
+	List<Session> findAllSessions();
+	
+	List<Person> findAllClients();
 	
 
 }

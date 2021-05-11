@@ -32,24 +32,31 @@ public class ClientServiceImpl implements ClientService	 {
 	PersonRepository personRepository;
 	
 	@Override
-	public List<Appointment> findAllClientAppointments(Integer ClientId){
-		return appointmentRepository.findAll().stream().filter(a->a.getClient().getId()==ClientId)
-					.collect(Collectors.toList());
+	public List<Session> findAllSessions(){
+		return sessionRepository.findAll();
+	}
+	
+	@Override
+	public List<Appointment> findAllClientAppointments(String email){
+//		Integer clientId = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
+//				.orElseThrow(()->new NoSuchElementException("No person with this email")).getId();
+		
+		return appointmentRepository.findByClientEmail(email);
+//				findAll().stream().filter(a->a.getClient().getId()== clientId)
+//					.collect(Collectors.toList());
 	}
 	@Override
-	public void addNewAppointment(Integer clientId,LocalDate date, Integer timeInHours) throws IllegalAccessException {
+	public void addNewAppointment(String email,Integer sessionId) throws IllegalAccessException {
 		
-		Person client = personRepository.findById(clientId).orElseThrow(()->new NoSuchElementException("No person with this id"));
+		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
+												.orElseThrow(()->new NoSuchElementException("No person with this id"));
 		
 		if(	client.getRoles().stream().noneMatch(r->r.equals(RoleType.CUSTOMER))) { 
 			throw new IllegalAccessException ("Only customers can create appointments");
 		}
 		
-		Session requestedSession = sessionRepository.findAll().stream()
-										.filter(s->s.getDate().equals(date))
-										.filter(s->s.getStartTime()==timeInHours).findAny()
-										.orElseThrow(()->new NoSuchElementException("No session found at this date/time"));
-		
+		Session requestedSession = sessionRepository.findById(sessionId).orElseThrow(()->new NoSuchElementException("No session with this id"));
+	
 		LocalDate currentDate = LocalDate.now();
 		Appointment newAppointment = new Appointment(currentDate, client, requestedSession);
 		
@@ -127,6 +134,12 @@ public class ClientServiceImpl implements ClientService	 {
 		toConfirm.setConfirmedDate(LocalDate.now());
 		//Update the appointment list
 		appointmentRepository.save(toConfirm);
+	}
+
+	@Override
+	public List<Person> findAllClients() {
+		// TODO Auto-generated method stub
+		return personRepository.findAll().stream().filter(cl->cl.getRoles().stream().anyMatch(r->r.equals(RoleType.CUSTOMER))).collect(Collectors.toList());
 	}
 
 }
