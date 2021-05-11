@@ -9,7 +9,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,9 +39,9 @@ public class AdminController {
 	}
 
 	@GetMapping(value = "/persons", params = "paged=true")
-	public ResponseEntity<Page<PersonDTO>> getPersonList(Pageable pageable) {
+	public Page<PersonDTO> getPersonList(Pageable pageable) {
 		Page<Person> page = personService.findAllPaged(pageable);
-		return ResponseEntity.ok(page.map(this::convertToPersonDto));
+		return page.map(this::convertToPersonDto);
 	}
 
 	@GetMapping("/persons/{id}")
