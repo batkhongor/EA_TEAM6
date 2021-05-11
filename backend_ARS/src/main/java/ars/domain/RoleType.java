@@ -1,5 +1,8 @@
 package ars.domain;
 
+import javax.persistence.Entity;
+
+
 public enum RoleType {
 	ADMIN("ADMIN"), CUSTOMER("CUSTOMER"), PROVIDER("PROVIDER");
 
