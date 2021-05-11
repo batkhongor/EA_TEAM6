@@ -21,7 +21,7 @@ import ars.repository.PersonRepository;
 import ars.repository.SessionRepository;
 import ars.service.ClientService;
 
-
+//SERVICE
 @Service
 public class ClientServiceImpl implements ClientService	 {
 	@Autowired
