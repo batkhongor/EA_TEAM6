@@ -3,39 +3,37 @@ package ars;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import ars.domain.Person;
+import ars.domain.RoleType;
+import ars.service.impl.PersonServiceImpl;
+
 @Component
 public class StartupRunner implements CommandLineRunner {
 	
-	//@Autowired
-	//private personRepository personRepository;
+	@Autowired
+	private PersonServiceImpl personServiceImpl;
 	
     @Override
     @Transactional
     public void run(String...args) throws Exception {
     	
-    	List<List<Integer>> result=new ArrayList<>();
-    	//Person admin= new Person(1, "admin","1","1@gmail.com");
+    	//List<List<Integer>> result=new ArrayList<>();
+    	Set<RoleType> roleTypes=new HashSet<>();
+    	roleTypes.add( RoleType.ADMIN);
     	
+    	Person person1=new Person("John", "Carter", "john", "john", roleTypes);
+    	personServiceImpl.createPerson(person1);
+    	System.out.println(person1.getRoles().toString());
     	//result.size()
     	//personRepository.save(admin);
-    	
-    	  int[] arr = {13, 7, 6, 45, 21, 9, 2, 100};
-    	  
-          // Sort subarray from index 1 to 4, i.e.,
-          // only sort subarray {7, 6, 45, 21} and
-          // keep other elements as it is.
-          Arrays.sort(arr, 1, 5);
-          
-          //Arrays.sort(arr, (List<Integer> a, List<Integer> b)-> a.get(0).compare(b.get(0)));
-   
-          System.out.printf("Modified arr[] : %s",
-                            Arrays.toString(arr));
     }
 }
