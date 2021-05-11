@@ -16,5 +16,7 @@ public interface ClientService {
 	
 	void editAppointment(Integer appointmentId, LocalDate newDate, Integer newTime);
 	
+	void pickNewConfirmedAppointment(Integer sessionId) throws Exception;
+	
 
 }

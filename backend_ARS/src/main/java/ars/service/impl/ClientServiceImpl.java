@@ -3,6 +3,7 @@ package ars.service.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -14,12 +15,13 @@ import ars.domain.Appointment;
 import ars.domain.Person;
 import ars.domain.RoleType;
 import ars.domain.Session;
+import ars.domain.Status;
 import ars.repository.AppointmentRepository;
 import ars.repository.PersonRepository;
 import ars.repository.SessionRepository;
 import ars.service.ClientService;
 
-
+//SERVICE
 @Service
 public class ClientServiceImpl implements ClientService	 {
 	@Autowired
@@ -51,6 +53,9 @@ public class ClientServiceImpl implements ClientService	 {
 		LocalDate currentDate = LocalDate.now();
 		Appointment newAppointment = new Appointment(currentDate, client, requestedSession);
 		
+		if(requestedSession.getAppointmentRequests().isEmpty()) {
+			newAppointment.setStatus(Status.CONFIRMED);
+		}
 		appointmentRepository.save(newAppointment);
 		
 	}
@@ -75,7 +80,15 @@ public class ClientServiceImpl implements ClientService	 {
 				throw new RuntimeException("Only Admins can delete a an Appointment within 24hours of session");
 			}
 		}
-			
+		//if trying to delete a confirmed appointment, then a new confirmed appointment must be picked
+		if(toDelete.getStatus().equals(Status.CONFIRMED)) {
+			toDelete.setStatus(Status.CANCELLED);
+			try {
+				pickNewConfirmedAppointment(toDelete.getSession().getId());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		appointmentRepository.delete(toDelete);
 	}
 	@Override
@@ -89,8 +102,31 @@ public class ClientServiceImpl implements ClientService	 {
 				.orElseThrow(()->new NoSuchElementException("No session found at this date/time"));
 		
 		appointmentToEdit.setSession(newSession);
-		appointmentRepository.save(appointmentToEdit);
 		
+		if(appointmentToEdit.getStatus().equals(Status.CONFIRMED)) {
+			appointmentToEdit.setStatus(Status.PENDING);
+			try {
+				pickNewConfirmedAppointment(appointmentToEdit.getSession().getId());//pick a new confirmed for this session
+			} catch (Exception e) { e.printStackTrace();}
+		}
+		
+		appointmentRepository.save(appointmentToEdit);
+	}
+	@Override
+	public  void pickNewConfirmedAppointment(Integer sessionId) throws Exception {
+		// TODO Auto-generated method stub
+		Session toEdit = sessionRepository.findById(sessionId).get();
+		
+		if(toEdit.getAppointmentRequests().stream().anyMatch(a->a.getStatus().equals(Status.CONFIRMED))) {
+			throw new Exception("Session already has a confirmed appointment");
+		}
+		Appointment toConfirm = toEdit.getAppointmentRequests().stream()
+									.filter(a->a.getStatus().equals(Status.PENDING))
+									.sorted(Comparator.comparing(Appointment::getCreatedDate)).findFirst().get();
+		toConfirm.setStatus(Status.CONFIRMED);
+		toConfirm.setConfirmedDate(LocalDate.now());
+		//Update the appointment list
+		appointmentRepository.save(toConfirm);
 	}
 
 }
