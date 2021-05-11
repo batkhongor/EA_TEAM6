@@ -42,8 +42,6 @@ public class ClientServiceImpl implements ClientService	 {
 //				.orElseThrow(()->new NoSuchElementException("No person with this email")).getId();
 		
 		return appointmentRepository.findByClientEmail(email);
-//				findAll().stream().filter(a->a.getClient().getId()== clientId)
-//					.collect(Collectors.toList());
 	}
 	@Override
 	public void addNewAppointment(String email,Integer sessionId) throws IllegalAccessException {
