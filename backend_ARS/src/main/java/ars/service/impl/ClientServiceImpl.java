@@ -32,16 +32,24 @@ public class ClientServiceImpl implements ClientService	 {
 	PersonRepository personRepository;
 	
 	@Override
-	public List<Appointment> findAllClientAppointments(Integer ClientId){
-		return appointmentRepository.findAll().stream().filter(a->a.getClient().getId()==ClientId)
-					.collect(Collectors.toList());
+	public List<Session> findAllSessions(){
+		return sessionRepository.findAll();
+	}
+	
+	@Override
+	public List<Appointment> findAllClientAppointments(String email){
+//		Integer clientId = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
+//				.orElseThrow(()->new NoSuchElementException("No person with this email")).getId();
+		
+		return appointmentRepository.findByClientEmail(email);
+//				findAll().stream().filter(a->a.getClient().getId()== clientId)
+//					.collect(Collectors.toList());
 	}
 	@Override
 	public void addNewAppointment(String email,Integer sessionId) throws IllegalAccessException {
 		
 		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
 												.orElseThrow(()->new NoSuchElementException("No person with this id"));
-		//Person client = personRepository.finb
 		
 		if(	client.getRoles().stream().noneMatch(r->r.equals(RoleType.CUSTOMER))) { 
 			throw new IllegalAccessException ("Only customers can create appointments");
