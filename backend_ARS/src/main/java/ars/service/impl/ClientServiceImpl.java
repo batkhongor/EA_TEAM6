@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import ars.domain.Appointment;
 import ars.domain.Person;
+import ars.domain.RoleType;
 import ars.domain.Session;
 import ars.repository.AppointmentRepository;
+import ars.repository.PersonRepository;
 import ars.repository.SessionRepository;
 import ars.service.ClientService;
 
@@ -22,6 +24,8 @@ public class ClientServiceImpl implements ClientService	 {
 	AppointmentRepository appointmentRepository;
 	@Autowired
 	SessionRepository sessionRepository;
+	@Autowired
+	PersonRepository personRepository;
 	
 	@Override
 	public List<Appointment> findAllClientAppointments(Integer ClientId){
@@ -29,13 +33,19 @@ public class ClientServiceImpl implements ClientService	 {
 					.collect(Collectors.toList());
 	}
 	@Override
-	public void addNewAppointment(Person client,LocalDate date, Integer timeInHours) {
+	public void addNewAppointment(Integer clientId,LocalDate date, Integer timeInHours) throws IllegalAccessException {
 		
-	
+		Person client = personRepository.findById(clientId).orElseThrow(()->new NoSuchElementException("No person with this id"));
+		
+		if(	client.getRoles().stream().noneMatch(r->r.equals(RoleType.CUSTOMER))) { 
+			throw new IllegalAccessException ("Only customers can create appointments");
+		}
+		
 		Session requestedSession = sessionRepository.findAll().stream()
 										.filter(s->s.getDate().equals(date))
 										.filter(s->s.getStartTime()==timeInHours).findAny()
 										.orElseThrow(()->new NoSuchElementException("No session found at this date/time"));
+		
 		LocalDate currentDate = LocalDate.now();
 		Appointment newAppointment = new Appointment(currentDate, client, requestedSession);
 		
@@ -43,16 +53,24 @@ public class ClientServiceImpl implements ClientService	 {
 		
 	}
 	@Override
-	public void deleteAppointment(Integer appointmentId) {
+	public void deleteAppointment(Integer appointmentId) throws IllegalAccessException {
 		Appointment toDelete = appointmentRepository.findById(appointmentId)
 				.orElseThrow(()->new NoSuchElementException("appointment does not exist in the records"));
 		
 		appointmentRepository.delete(toDelete);
-		
 	}
 	@Override
-	public void editAppointment(Integer appointmentId) {
+	public void editAppointment(Integer appointmentId, LocalDate newDate, Integer newTime) {
 		// TODO Auto-generated method stub
+		Appointment appointmentToEdit = appointmentRepository.findById(appointmentId).orElseThrow(()-> new NoSuchElementException("Appointment does not exist"));
+		
+		Session newSession = sessionRepository.findAll().stream()
+				.filter(s->s.getDate().equals(newDate))
+				.filter(s->s.getStartTime()==newTime).findAny()
+				.orElseThrow(()->new NoSuchElementException("No session found at this date/time"));
+		
+		appointmentToEdit.setSession(newSession);
+		appointmentRepository.save(appointmentToEdit);
 		
 	}
 

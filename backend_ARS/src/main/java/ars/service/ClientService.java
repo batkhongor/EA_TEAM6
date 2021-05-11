@@ -10,11 +10,11 @@ public interface ClientService {
 
 	List<Appointment> findAllClientAppointments(Integer ClientId);
 	
-	void addNewAppointment(Person client,LocalDate date, Integer timeInHours);
+	void addNewAppointment(Integer clientId,LocalDate date, Integer timeInHours) throws IllegalAccessException;
 	
-	void deleteAppointment(Integer appointmentId);
+	void deleteAppointment(Integer appointmentId) throws IllegalAccessException;
 	
-	void editAppointment(Integer appointmentId);
+	void editAppointment(Integer appointmentId, LocalDate newDate, Integer newTime);
 	
 
 }
