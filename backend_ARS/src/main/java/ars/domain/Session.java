@@ -53,4 +53,16 @@ public class Session {
 	@OneToMany(mappedBy="session")
 	private List<Appointment> appointmentRequests;
 
+	public Session( @Future LocalDate date,
+			@NotNull @DecimalMin(value = "0", inclusive = true) @DecimalMax(value = "24", inclusive = false) Integer startTime,
+			@NotNull @Max(60) @Min(1) int duration, @NotNull String location, Person provider) {
+		super();
+		this.date = date;
+		this.startTime = startTime;
+		this.duration = duration;
+		this.location = location;
+		this.provider = provider;
+	}
+	
+
 }
