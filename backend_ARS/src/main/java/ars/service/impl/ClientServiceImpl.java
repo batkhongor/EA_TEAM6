@@ -136,4 +136,10 @@ public class ClientServiceImpl implements ClientService	 {
 		appointmentRepository.save(toConfirm);
 	}
 
+	@Override
+	public List<Person> findAllClients() {
+		// TODO Auto-generated method stub
+		return personRepository.findAll().stream().filter(cl->cl.getRoles().stream().anyMatch(r->r.equals(RoleType.CUSTOMER))).collect(Collectors.toList());
+	}
+
 }

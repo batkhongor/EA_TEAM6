@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import ars.domain.Appointment;
+import ars.domain.Person;
 import ars.domain.Session;
 
 public interface ClientService {
@@ -19,6 +20,8 @@ public interface ClientService {
 	void pickNewConfirmedAppointment(Integer sessionId) throws Exception;
 	
 	List<Session> findAllSessions();
+	
+	List<Person> findAllClients();
 	
 
 }
