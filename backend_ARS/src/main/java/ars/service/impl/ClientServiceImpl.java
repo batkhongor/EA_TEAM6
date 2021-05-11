@@ -53,6 +53,9 @@ public class ClientServiceImpl implements ClientService	 {
 		LocalDate currentDate = LocalDate.now();
 		Appointment newAppointment = new Appointment(currentDate, client, requestedSession);
 		
+		if(requestedSession.getAppointmentRequests().isEmpty()) {
+			newAppointment.setStatus(Status.CONFIRMED);
+		}
 		appointmentRepository.save(newAppointment);
 		
 	}
@@ -99,8 +102,15 @@ public class ClientServiceImpl implements ClientService	 {
 				.orElseThrow(()->new NoSuchElementException("No session found at this date/time"));
 		
 		appointmentToEdit.setSession(newSession);
-		appointmentRepository.save(appointmentToEdit);
 		
+		if(appointmentToEdit.getStatus().equals(Status.CONFIRMED)) {
+			appointmentToEdit.setStatus(Status.PENDING);
+			try {
+				pickNewConfirmedAppointment(appointmentToEdit.getSession().getId());//pick a new confirmed for this session
+			} catch (Exception e) { e.printStackTrace();}
+		}
+		
+		appointmentRepository.save(appointmentToEdit);
 	}
 	@Override
 	public  void pickNewConfirmedAppointment(Integer sessionId) throws Exception {
@@ -114,6 +124,7 @@ public class ClientServiceImpl implements ClientService	 {
 									.filter(a->a.getStatus().equals(Status.PENDING))
 									.sorted(Comparator.comparing(Appointment::getCreatedDate)).findFirst().get();
 		toConfirm.setStatus(Status.CONFIRMED);
+		toConfirm.setConfirmedDate(LocalDate.now());
 		//Update the appointment list
 		appointmentRepository.save(toConfirm);
 	}
