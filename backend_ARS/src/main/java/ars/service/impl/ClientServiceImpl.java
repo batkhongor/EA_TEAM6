@@ -42,24 +42,21 @@ public class ClientServiceImpl implements ClientService	 {
 	
 	@Override
 	public List<Appointment> findAllClientAppointments(String email){
-//		Integer clientId = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
-//				.orElseThrow(()->new NoSuchElementException("No person with this email")).getId();
-		
 		return appointmentRepository.findByClientEmail(email);
 	}
 	@Override
 	public String addNewAppointment(String email,Integer sessionId) {
 		
 		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
-												.orElseThrow(()->new NoSuchElementException("No person with this id"));
+												.orElseThrow(()->new NoSuchElementException("!!ERROR!! No person with this id"));
 		
 		if(	client.getRoles().stream().noneMatch(r->r.equals(RoleType.CUSTOMER))) { 
-			return "Only customers can create appointments";
+			return "!!ERROR!! Only customers can create appointments";
 		}
 		
 		Session requestedSession = sessionRepository.findById(sessionId).get();
 		if(requestedSession==null) {
-			return "No session with this id";
+			return "!!ERROR!! No session with this id";
 		}
 	
 		LocalDate currentDate = LocalDate.now();
@@ -76,10 +73,9 @@ public class ClientServiceImpl implements ClientService	 {
 	public String deleteAppointment(String email , Integer appointmentId) {
 	
 		Person personTryingToDelete = personRepository.findByEmailOne(email);
-		if(personTryingToDelete==null) {return "ERROR!! No person with this id";}
+		if(personTryingToDelete==null) {return "!!ERROR!! No person with this id";}
 		
 		if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN)||r.equals(RoleType.CUSTOMER))) {
-			//throw new IllegalAccessException("Only Admins and Clients can delete an appointment");
 			return "!!ERROR. Only Admins and Clients can delete an appointment";
 		}
 		
@@ -92,7 +88,6 @@ public class ClientServiceImpl implements ClientService	 {
 	
 		if(LocalDateTime.now().isAfter(appDateTime.minusHours(24))) {
 			if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN))){
-				//throw new RuntimeException("Only Admins can delete a an Appointment within 24hours of session");
 				return "!!ERROR.Only Admins can delete a an Appointment within 24hours of session";
 			}
 		}
@@ -105,6 +100,9 @@ public class ClientServiceImpl implements ClientService	 {
 			}
 		}
 		appointmentRepository.delete(toDelete);
+		
+		emailService.sendEmail(toDelete.getClient().getEmail(), "Appointment Deleted", "Appointment NO. "+appointmentId+" was Deleted");
+		emailService.sendEmail(toDelete.getSession().getProvider().getEmail(), "Appointment Deleted", "Appointment NO. "+appointmentId+" was Deleted");
 		return "Successfully Deleted";
 	}
 	@Override
@@ -132,31 +130,29 @@ public class ClientServiceImpl implements ClientService	 {
 		}
 		
 		appointmentRepository.save(appointmentToEdit);
+		
 		emailService.sendEmail(appointmentToEdit.getClient().getEmail(), "Appointment Edited", "Appointment Edited");
-		return "Success";
+		emailService.sendEmail(appointmentToEdit.getSession().getProvider().getEmail(), "Appointment Edited", "Appointment Edited");
+		return "SUCCESS";
 	}
 		
 	@Override
 	public void  pickNewConfirmedAppointment(Integer sessionId) {
-		// TODO Auto-generated method stub
 		Session toEdit = sessionRepository.findById(sessionId).get();
 		
-//		if(toEdit.getAppointmentRequests().stream().anyMatch(a->a.getStatus().equals(Status.CONFIRMED))) {
-//			throw new Exception("Session already has a confirmed appointment");
-//		}
 		Appointment toConfirm = toEdit.getAppointmentRequests().stream()
 									.filter(a->a.getStatus().equals(Status.PENDING))
 									.sorted(Comparator.comparing(Appointment::getCreatedDate)).findFirst().get();
 		toConfirm.setStatus(Status.CONFIRMED);
 		toConfirm.setConfirmedDate(LocalDate.now());
-		//Update the appointment list
+
 		appointmentRepository.save(toConfirm);
 	}
 
 	@Override
 	public List<Person> findAllClients() {
-		// TODO Auto-generated method stub
-		return personRepository.findAll().stream().filter(cl->cl.getRoles().stream().anyMatch(r->r.equals(RoleType.CUSTOMER))).collect(Collectors.toList());
+		return personRepository.findAll().stream().filter(cl->cl.getRoles().contains(RoleType.CUSTOMER))
+								.collect(Collectors.toList());
 	}
 
 }
