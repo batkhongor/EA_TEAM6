@@ -3,9 +3,9 @@ spring:
     name: EA_ARS
  
   datasource:
-    url: jdbc:mysql://localhost:3306/test
+    url: jdbc:mysql://localhost:3306/ea-team6
     username: root
-    password: admin
+    password: root
     driverClassName: com.mysql.cj.jdbc.Driver
     hikari:
       maximumPoolSize: 1
