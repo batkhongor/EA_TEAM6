@@ -87,28 +87,28 @@ public class AdminController {
 	@GetMapping(value = "/sessions", params = "paged=true")
 	public Page<Session> getSessionList(Pageable pageable) {
 		Page<Session> page = adminService.findAllSessions(pageable);
-		return page; // page.map(this::convertToPersonDto);
+		return page;
 	}
 
 	@GetMapping("/sessions/{id}")
 	public Session getSession(@PathVariable("id") Integer personId) {
 		Session entity = adminService.findSessionById(personId).get();
-		return entity;// convertToPersonDto(entity);
+		return entity;
 	}
 
 	@PostMapping("/sessions")
 	public Session createSession(@Valid @RequestBody Session personDto) {
-		Session entity = personDto; // convertToEntity(personDto);
+		Session entity = personDto;
 		entity = adminService.createSession(entity);
-		return entity;// convertToPersonDto(entity);
+		return entity;
 	}
 
 	@PutMapping("/sessions/{id}")
 	public Session updateSession(@PathVariable("id") Integer sessionId, @Valid @RequestBody Session sessionDto) {
 		adminService.findSessionById(sessionId).orElseThrow(RuntimeException::new);
-		Session entity = sessionDto;// convertToEntity(sessionDto);
+		Session entity = sessionDto;
 		entity = adminService.updateSession(entity);
-		return entity;// convertToPersonDto(entity);
+		return entity;
 	}
 
 	@DeleteMapping("/sessions/{id}")
