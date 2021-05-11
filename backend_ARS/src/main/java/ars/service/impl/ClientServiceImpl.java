@@ -30,6 +30,7 @@ public class ClientServiceImpl implements ClientService	 {
 	}
 	@Override
 	public void addNewAppointment(Person client,LocalDate date, Integer timeInHours) {
+		
 	
 		Session requestedSession = sessionRepository.findAll().stream()
 										.filter(s->s.getDate().equals(date))
