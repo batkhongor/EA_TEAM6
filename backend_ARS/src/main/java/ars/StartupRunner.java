@@ -29,9 +29,16 @@ public class StartupRunner implements CommandLineRunner {
     	//List<List<Integer>> result=new ArrayList<>();
     	Set<RoleType> roleTypes=new HashSet<>();
     	roleTypes.add( RoleType.ADMIN);
-    	
+
+
+		Set<RoleType> roleTypes1=new HashSet<>();
+		roleTypes1.add( RoleType.PROVIDER);
     	Person person1=new Person("John", "Carter", "john", "john", roleTypes);
+    	Person person2= new Person("Bruke", "Tadege", "brukeabebe2@gmail.com", "bruke", roleTypes1);
+		Person person3= new Person("mike", "mike", "mike@gmail.com", "mike", roleTypes1);
     	personServiceImpl.createPerson(person1);
+		personServiceImpl.createPerson(person2);
+		personServiceImpl.createPerson(person3);
     	System.out.println(person1.getRoles().toString());
     	//result.size()
     	//personRepository.save(admin);

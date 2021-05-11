@@ -50,7 +50,7 @@ public class ProviderServiceImpl implements ProviderService {
     public List<Session> findSessionByEmail(Authentication authentication) {
 
         String email = authentication.getName();
-        Person provider= (Person) personRepository.findByEmail(email);
+        Person provider= (Person) personRepository.findByEmailOne(email);
         Integer providerId= provider.getId();
         return sessionRepository.findAll().stream().filter(session -> session.getProvider().getId()==providerId)
                 .collect(Collectors.toList());
@@ -62,7 +62,7 @@ public class ProviderServiceImpl implements ProviderService {
     public Session createSession(Session session,Authentication authentication) {
 
         String email = authentication.getName();
-        Person provider= (Person) personRepository.findByEmail(email);
+        Person provider= (Person) personRepository.findByEmailOne(email);
         Integer providerId= provider.getId();
 
 
@@ -81,7 +81,7 @@ public class ProviderServiceImpl implements ProviderService {
     public Session updateSession(Integer SessionId , Session session, Authentication authentication) {
 
         String email = authentication.getName();
-        Person provider= (Person) personRepository.findByEmail(email);
+        Person provider= (Person) personRepository.findByEmailOne(email);
         Integer providerId= provider.getId();
 
         Session entity =sessionRepository.findById(SessionId).orElseThrow(RuntimeException::new);
@@ -101,7 +101,7 @@ public class ProviderServiceImpl implements ProviderService {
 
     public void deleteSession(Integer id, Authentication authentication) {
         String email = authentication.getName();
-        Person provider= (Person) personRepository.findByEmail(email);
+        Person provider= (Person) personRepository.findByEmailOne(email);
         Integer providerId= provider.getId();
 
         if(sessionRepository.findById(id).get().getProvider().getId()==providerId) {
