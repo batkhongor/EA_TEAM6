@@ -11,13 +11,13 @@ public interface ClientService {
 
 	List<Appointment> findAllClientAppointments(String email);
 	
-	void addNewAppointment( String email, Integer sessionId) throws IllegalAccessException;
+	String addNewAppointment( String email, Integer sessionId); //throws IllegalAccessException;
 	
-	void deleteAppointment(Integer personId,Integer appointmentId) throws IllegalAccessException;
+	String deleteAppointment(String email,Integer appointmentId); //throws IllegalAccessException;
 	
-	void editAppointment(Integer appointmentId, LocalDate newDate, Integer newTime);
+	String editAppointment(String email, Integer appointmentId, Integer newSessionId);
 	
-	void pickNewConfirmedAppointment(Integer sessionId) throws Exception;
+	void pickNewConfirmedAppointment(Integer sessionId); //throws Exception;
 	
 	List<Session> findAllSessions();
 	
