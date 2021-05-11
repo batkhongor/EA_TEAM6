@@ -33,7 +33,7 @@ public class StartupRunner implements CommandLineRunner {
           // keep other elements as it is.
           Arrays.sort(arr, 1, 5);
           
-          Arrays.sort(arr, (List<Integer> a, List<Integer> b)-> a.get(0).compare(b.get(0)));
+          //Arrays.sort(arr, (List<Integer> a, List<Integer> b)-> a.get(0).compare(b.get(0)));
    
           System.out.printf("Modified arr[] : %s",
                             Arrays.toString(arr));
