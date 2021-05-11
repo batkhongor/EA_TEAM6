@@ -37,19 +37,17 @@ public class ClientServiceImpl implements ClientService	 {
 					.collect(Collectors.toList());
 	}
 	@Override
-	public void addNewAppointment(Integer clientId,LocalDate date, Integer timeInHours) throws IllegalAccessException {
+	public void addNewAppointment(String email,Integer sessionId) throws IllegalAccessException {
 		
-		Person client = personRepository.findById(clientId).orElseThrow(()->new NoSuchElementException("No person with this id"));
+		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
+												.orElseThrow(()->new NoSuchElementException("No person with this id"));
 		
 		if(	client.getRoles().stream().noneMatch(r->r.equals(RoleType.CUSTOMER))) { 
 			throw new IllegalAccessException ("Only customers can create appointments");
 		}
 		
-		Session requestedSession = sessionRepository.findAll().stream()
-										.filter(s->s.getDate().equals(date))
-										.filter(s->s.getStartTime()==timeInHours).findAny()
-										.orElseThrow(()->new NoSuchElementException("No session found at this date/time"));
-		
+		Session requestedSession = sessionRepository.findById(sessionId).orElseThrow(()->new NoSuchElementException("No session with this id"));
+	
 		LocalDate currentDate = LocalDate.now();
 		Appointment newAppointment = new Appointment(currentDate, client, requestedSession);
 		
