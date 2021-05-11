@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import ars.domain.RoleType;
+import ars.filter.JwtRequestFilter;
 import ars.service.impl.UserDetailServiceImpl;
 
 
@@ -27,8 +28,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserDetailServiceImpl userDetailServiceImpl;
 	
-	//@Autowired
-	//private JwtRequestFilter jwtRequestFilter;
+	@Autowired
+	private JwtRequestFilter jwtRequestFilter;
 	
     @Autowired
     public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
@@ -56,30 +57,30 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http		
 		.authorizeRequests()
 			.antMatchers("/favicon.ico").permitAll()
-			//.antMatchers("/authenticate").permitAll()
+			.antMatchers("/authenticate").permitAll()
 			//.antMatchers("/hello").permitAll()
 			.antMatchers("/provider/*").permitAll()
 			//.antMatchers("/provider/*").authenticated()
 			//.antMatchers("/student").authenticated()
 			.antMatchers("/admin/*").hasAnyAuthority("ADMIN")
-			//.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and().csrf().disable().formLogin()
+			.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and().csrf().disable()
 			
 			/*
 			.formLogin()*/
 			;
 			
-			//http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+			http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 		
     }
     
-    /*
+    
     @Override
     @Bean
     protected AuthenticationManager authenticationManager() throws Exception {
     	// TODO Auto-generated method stub
     	return super.authenticationManager();
     }
-    */
+    
 }
 

@@ -39,7 +39,6 @@ public class UserDetailServiceImpl implements UserDetailsService{
 		Set<RoleType> roles=person.getRoles();
 		
 		for(RoleType roleType : roles) {
-			System.out.println(roleType.toString());
 			GrantedAuthority role=new SimpleGrantedAuthority(roleType.toString());
 			authorities.add(role);
 		}
