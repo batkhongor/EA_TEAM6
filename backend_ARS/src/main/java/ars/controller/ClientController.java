@@ -28,52 +28,32 @@ import ars.service.ClientService;
 @RestController
 @RequestMapping("/clients") // plural matters?
 public class ClientController {
-	
-	@Autowired
-    private PersonRepository personRepository;
-	
-	@Autowired
-	private SessionRepository sessionRepository;
-	
-	@Autowired
-	private AppointmentRepository appointmentRepository;
-	
 	@Autowired
 	private ClientService clientService;
 	
 	//get all providers
     @GetMapping
     public List<Person> findAllClients() {
-        return personRepository.findAll().stream().filter(person -> person.getRoles()
-                                          .contains(RoleType.CUSTOMER)).collect(Collectors.toList());
+        return clientService.findAllClients();
     }
     
     // ------------------- SESSION CRUD ----------------------
 	@GetMapping("/sessions")
 	private List<Session> findAllSessions() {
-		return sessionRepository.findAll();
+		return clientService.findAllSessions();
 	}
 
 	// ------------------- APPOINTMENTS CRUD ----------------------
 	@GetMapping("/appointments")
 	private List<Appointment> findAppointments(Authentication authentication) {
-		System.out.println("EMAIL:" + authentication.getName());
-		return appointmentRepository.findByClientEmail(authentication.getName());
+		return clientService.findAllClientAppointments(authentication.getName());
 	}
 	
-	@PostMapping("/appointments")
-	private void createAppointment(Authentication authentication, @RequestBody Appointment appointment) {
-		System.out.println("POST /appointments");
-		System.out.println("EMAIL:" + authentication.getName());
+	@PostMapping("/sessions/{session_id}/appointments")
+	private void createAppointment(
+			Authentication authentication, 
+			@PathVariable(name = "session_id") Integer sessionId) throws IllegalAccessException {
 		
-		String email = authentication.getName();
-		Person client = personRepository.findByEmail(email);
-		Session session = sessionRepository.findById(sessionId);
-		
-		Appointment appointment = new Appointment(..., client, session);
-		personRep
-		System.out.println(appointment);
-		
-		return clientService.addNewAppointment(email, sessionId);
+		clientService.addNewAppointment(authentication.getName(), sessionId);
 	}
 }
