@@ -1,78 +1,58 @@
 package ars.service;
 
-
+import ars.domain.Appointment;
 import ars.domain.Person;
 import ars.domain.RoleType;
 import ars.domain.Session;
-import ars.repository.PersonRepository;
-import ars.repository.SessionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
+import org.hibernate.cfg.NotYetImplementedException;
+import org.springframework.security.core.Authentication;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
-public class ProviderService {
-
-
-
-    @Autowired
-    private PersonRepository personRepository;
-
-    @Autowired
-    private SessionRepository sessionRepository;
-
-
-    public List<Person> findAllProviders() {
-        return personRepository.findAll().stream().filter(person -> person.getRoles()
-                .contains(RoleType.PROVIDER)).collect(Collectors.toList());
-    }
+public interface ProviderService {
 
     //List all sessions for a provider using a given provider ID
 
-    public List<Session> findSessionById(Integer personId) {
-        return sessionRepository.findAll().stream().filter(session -> session.getProvider().getId()==personId)
-                .collect(Collectors.toList());
+    public default List<Person> findAllProviders() {
+        throw new NotYetImplementedException();
     }
 
-
-
-
-    public Session createSession(Session session, Integer providerId) {
-
-
-          if(session.getProvider().getId()==providerId) {
-              return sessionRepository.save(session);
-          }
-
-          else
-          {
-              throw new RuntimeException();
-          }
+    //List All appointments for a Given Session
+    public default List<Appointment> findAllAppointmentsForASession(Integer SessionId) {
+        throw new NotYetImplementedException();
     }
-
-
-
-    public Session updateSession(Integer SessionId , Session session) {
-        Session entity =sessionRepository.findById(SessionId).orElseThrow(RuntimeException::new);
-
-        if(SessionId.equals(session.getId()))
-        {
-            return sessionRepository.save(session);
-        }
-        else
-        {
-            return null;
-        }
-
+    public default Appointment findConfirmedAppointment(Integer SessionId)
+    {
+        throw new NotYetImplementedException();
 
     }
 
 
-    public void deleteSession(Integer id) {
-        sessionRepository.deleteById(id);
+    public default List<Session> findSessionByEmail(Authentication authentication) {
+        throw new NotYetImplementedException();
     }
+
+
+    public default Session createSession(Session session, Authentication authentication) {
+
+
+        throw new NotYetImplementedException();
+    }
+
+
+    public default Session updateSession(Integer SessionId, Session session, Authentication authentication) {
+        throw new NotYetImplementedException();
+
+
+    }
+
+    public default void deleteSession(Integer id, Authentication authentication) {
+        throw new NotYetImplementedException();
+    }
+
+
 }
+
+
+
