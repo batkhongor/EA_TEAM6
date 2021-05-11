@@ -10,7 +10,7 @@ public interface ClientService {
 
 	List<Appointment> findAllClientAppointments(Integer ClientId);
 	
-	void addNewAppointment(Integer clientId,LocalDate date, Integer timeInHours) throws IllegalAccessException;
+	void addNewAppointment( String email, Integer sessionId) throws IllegalAccessException;
 	
 	void deleteAppointment(Integer personId,Integer appointmentId) throws IllegalAccessException;
 	
