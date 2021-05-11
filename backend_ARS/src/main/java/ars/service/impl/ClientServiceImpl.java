@@ -43,7 +43,10 @@ public class ClientServiceImpl implements ClientService	 {
 	}
 	@Override
 	public void deleteAppointment(Integer appointmentId) {
-		// TODO Auto-generated method stub
+		Appointment toDelete = appointmentRepository.findById(appointmentId)
+				.orElseThrow(()->new NoSuchElementException("appointment does not exist in the records"));
+		
+		appointmentRepository.delete(toDelete);
 		
 	}
 	@Override
