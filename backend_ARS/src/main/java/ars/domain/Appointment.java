@@ -40,4 +40,10 @@ public class Appointment {
 	@ManyToOne
 	@JoinColumn(name="client_id")
 	private Person client;
+	
+	public Appointment(LocalDate createdDate, Person client, Session session) {
+		this.createdDate = createdDate;
+		this.client = client;
+		this.session = session;
+	}
 }
