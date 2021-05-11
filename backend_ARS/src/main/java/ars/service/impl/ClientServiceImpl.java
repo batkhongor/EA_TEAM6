@@ -105,6 +105,9 @@ public class ClientServiceImpl implements ClientService	 {
 			}
 		}
 		appointmentRepository.delete(toDelete);
+		
+		emailService.sendEmail(toDelete.getClient().getEmail(), "Appointment Deleted", "Appointment NO. "+appointmentId+" was Deleted");
+		emailService.sendEmail(toDelete.getSession().getProvider().getEmail(), "Appointment Deleted", "Appointment NO. "+appointmentId+" was Deleted");
 		return "Successfully Deleted";
 	}
 	@Override
@@ -132,8 +135,10 @@ public class ClientServiceImpl implements ClientService	 {
 		}
 		
 		appointmentRepository.save(appointmentToEdit);
+		
 		emailService.sendEmail(appointmentToEdit.getClient().getEmail(), "Appointment Edited", "Appointment Edited");
-		return "Success";
+		emailService.sendEmail(appointmentToEdit.getSession().getProvider().getEmail(), "Appointment Edited", "Appointment Edited");
+		return "SUCCESS";
 	}
 		
 	@Override
