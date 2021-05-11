@@ -8,6 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
+public interface AppointmentRepository extends JpaRepository<Appointment, Integer>{
 
 }
