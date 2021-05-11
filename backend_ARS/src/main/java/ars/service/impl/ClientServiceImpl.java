@@ -1,6 +1,8 @@
 package ars.service.impl;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -53,10 +55,27 @@ public class ClientServiceImpl implements ClientService	 {
 		
 	}
 	@Override
-	public void deleteAppointment(Integer appointmentId) throws IllegalAccessException {
+	public void deleteAppointment(Integer personId, Integer appointmentId) throws IllegalAccessException {
+	
+		Person personTryingToDelete = personRepository.findById(personId).orElseThrow(()->new NoSuchElementException("No person with this id"));
+		
+		if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN)||r.equals(RoleType.CUSTOMER))) {
+			throw new IllegalAccessException("Only Admins and Clients can delete an appointment");
+		}
+		
 		Appointment toDelete = appointmentRepository.findById(appointmentId)
 				.orElseThrow(()->new NoSuchElementException("appointment does not exist in the records"));
 		
+		LocalDate appDate = toDelete.getSession().getDate();
+		LocalTime appTime = LocalTime.of(toDelete.getSession().getStartTime(),0);
+		LocalDateTime appDateTime = LocalDateTime.of(appDate,appTime);
+	
+		if(LocalDateTime.now().isAfter(appDateTime.minusHours(24))) {
+			if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN))){
+				throw new RuntimeException("Only Admins can delete a an Appointment within 24hours of session");
+			}
+		}
+			
 		appointmentRepository.delete(toDelete);
 	}
 	@Override

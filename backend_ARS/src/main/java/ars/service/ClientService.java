@@ -12,7 +12,7 @@ public interface ClientService {
 	
 	void addNewAppointment(Integer clientId,LocalDate date, Integer timeInHours) throws IllegalAccessException;
 	
-	void deleteAppointment(Integer appointmentId) throws IllegalAccessException;
+	void deleteAppointment(Integer personId,Integer appointmentId) throws IllegalAccessException;
 	
 	void editAppointment(Integer appointmentId, LocalDate newDate, Integer newTime);
 	
