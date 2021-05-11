@@ -26,7 +26,7 @@ import ars.utils.JwtUtils;
 // @RestController This also can be used instead of @Controller so that we don't
 // have to user @ResponseBody annotation.
 
-public class Welcome {
+public class AuthenticationController {
 	
 	@Autowired
 	private AuthenticationManager authenticationManager;
