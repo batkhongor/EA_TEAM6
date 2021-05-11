@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ars.domain.Person;
+import ars.domain.Session;
 import ars.dto.PersonDTO;
 import ars.service.PersonService;
 
@@ -33,6 +34,8 @@ public class AdminController {
 	@Autowired
 	private PersonService personService;
 
+	
+	/* <PERSON> */
 	@GetMapping("/persons")
 	public List<PersonDTO> getPersonList() {
 		List<Person> list = personService.findAll();
@@ -70,7 +73,18 @@ public class AdminController {
 	public void deletePerson(@PathVariable("id") Integer personId) {
 		personService.deletePerson(personId);
 	}
+	/* </PERSON> */
+	
+	/* <SESSION> */
+	@GetMapping("/persons")
+	public List<Session> getSessionList() {
+		List<Person> list = personService.findAll();
+		return list.stream().map(this::convertToPersonDto).collect(Collectors.toList());
+	}
 
+	/* </SESSION> */
+	
+	/* <private methods> */
 	private PersonDTO convertToPersonDto(Person person) {
 		PersonDTO pDto = modelMapper.map(person, PersonDTO.class);
 		pDto.setPassword("");
@@ -81,4 +95,5 @@ public class AdminController {
 		Person entity = modelMapper.map(pDto, Person.class);
 		return entity;
 	}
+	/* </private methods> */
 }
