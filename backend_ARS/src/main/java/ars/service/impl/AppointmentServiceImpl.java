@@ -81,7 +81,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 					.orElseThrow(()-> new NotFoundException("!!ERROR!! appointment with this id does not exist in the records"));
 
 		LocalDate appDate = toDelete.getSession().getDate();
-		LocalTime appTime = LocalTime.of(toDelete.getSession().getStartTime(),0);
+		LocalTime appTime = toDelete.getSession().getStartTime();
 		LocalDateTime appDateTime = LocalDateTime.of(appDate,appTime);
 	
 		if(LocalDateTime.now().isAfter(appDateTime.minusHours(24))) {
@@ -116,7 +116,8 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		Session newSession = sessionRepository.findById(newSessionId)
 									.orElseThrow(()->new NotFoundException("!!ERROR!! No Session with this id"));
 		
-		LocalDateTime newSessionDateTime = LocalDateTime.of(newSession.getDate(), LocalTime.of(newSession.getStartTime(),0));
+//		LocalDateTime newSessionDateTime = LocalDateTime.of(newSession.getDate(), LocalTime.of(newSession.getStartTime(),0));
+		LocalDateTime newSessionDateTime = LocalDateTime.of(newSession.getDate(), newSession.getStartTime());
 	
 		if(LocalDateTime.now().isAfter(newSessionDateTime.minusHours(24))) {
 			if(person.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN))){
