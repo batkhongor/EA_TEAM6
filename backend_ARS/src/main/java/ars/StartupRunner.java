@@ -52,7 +52,7 @@ public class StartupRunner implements CommandLineRunner {
 		System.out.println(person1.getRoles().toString());
 
 		// ------------ PROVIDER ------------
-		Person provider1 = new Person("Provider", "Mr", "provider", "john", new HashSet<>());
+		Person provider1 = new Person("Provider", "Mr", "brukeabebe2@gmail.com", "john", new HashSet<>());
 		provider1.addRole(RoleType.PROVIDER);
 		personServiceImpl.createPerson(provider1);
 
@@ -66,7 +66,7 @@ public class StartupRunner implements CommandLineRunner {
 		}
 
 		// ------------ CUSTOMER ------------
-		Person customer1 = new Person("Customer", "Mr", "customer", "john", new HashSet<>());
+		Person customer1 = new Person("Customer", "Mr", "cs544eateam6@gmail.com", "john", new HashSet<>());
 		customer1.addRole(RoleType.CUSTOMER);
 
 		personServiceImpl.createPerson(customer1);
@@ -75,10 +75,10 @@ public class StartupRunner implements CommandLineRunner {
 		Set<RoleType> roleTypes1=new HashSet<>();
 		roleTypes1.add( RoleType.PROVIDER);
 
-		Person person2= new Person("Bruke", "Tadege", "brukeabebe2@gmail.com", "bruke", roleTypes1);
+		//Person person2= new Person("Bruke", "Tadege", "brukeabebe2@gmail.com", "bruke", roleTypes1);
 		Person person3= new Person("mike", "mike", "mike@gmail.com", "mike", roleTypes1);
 
-		personServiceImpl.createPerson(person2);
+		//personServiceImpl.createPerson(person2);
 		personServiceImpl.createPerson(person3);
 		emailService.sendEmail("brukeabebe2@gmail.com", "test", "Test");
     }
