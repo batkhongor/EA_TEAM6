@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ars.domain.Person;
+import ars.domain.RoleType;
 import ars.domain.Session;
 import ars.exceptions.NotAllowedException;
 import ars.exceptions.TimeConflictException;
@@ -59,6 +60,9 @@ public class SessionServiceImpl implements SessionService {
 			throws TimeConflictException, NotAllowedException {
 		Person person = personRepository.findByEmailOne(providerEMail);
 
+		if (!person.hasRole(RoleType.PROVIDER)) {
+			throw new NotAllowedException("");
+		}
 		session.setProvider(person);
 
 		
