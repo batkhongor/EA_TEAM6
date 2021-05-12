@@ -24,7 +24,7 @@ public class StartupRunner implements CommandLineRunner {
 	private PersonService personServiceImpl;
 
 	@Autowired
-	private SessionRepository sessionRepo;
+	private SessionRepository sessionRepository;
 
 	@Override
 	@Transactional
@@ -52,7 +52,7 @@ public class StartupRunner implements CommandLineRunner {
 		for (int time = 16; time < 24; time++) {
 			Session session1 = new Session(today.plus(time, ChronoUnit.DAYS), LocalTime.of(time, 0), 30, "Iowa",
 					provider1);
-			sessionRepo.save(session1);
+			sessionRepository.save(session1);
 		}
 
 		// ------------ CUSTOMER ------------

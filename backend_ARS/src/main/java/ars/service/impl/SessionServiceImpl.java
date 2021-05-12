@@ -5,16 +5,17 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import ars.domain.Person;
 import ars.domain.Session;
 import ars.exceptions.NotAllowedException;
-import ars.exceptions.NotFoundException;
 import ars.exceptions.TimeConflictException;
 import ars.repository.PersonRepository;
 import ars.repository.SessionRepository;
 import ars.service.SessionService;
 
+@Service
 public class SessionServiceImpl implements SessionService {
 
 	@Autowired
