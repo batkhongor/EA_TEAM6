@@ -42,14 +42,21 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 	
 	@Override
 	public List<Appointment> findAllClientAppointments(String email){
-		return appointmentRepository.findAll().stream().filter(a->a.getClient().getEmail().equals(email)).collect(Collectors.toList());
+//		return appointmentRepository.findAll().stream().filter(a->a.getClient().getEmail().equals(email)).collect(Collectors.toList());
+		return appointmentRepository.findAllByClientEmail(email);
 	}
 	
 	@Override
 	public Appointment createAppointment(String email,Integer sessionId) throws NotFoundException {
 		
-		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
-																	.orElseThrow(()->new NotFoundException("!!ERROR!! No person with this id"));
+//		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
+//																	.orElseThrow(()->new NotFoundException("!!ERROR!! No person with this id"));
+		
+		Person client = personRepository.findByEmailOne(email);
+		
+		if(client==null) {
+			throw new NotFoundException("!!ERROR!! No person with this id");
+		}
 		
 		if(	client.getRoles().stream().noneMatch(r->r.equals(RoleType.CUSTOMER))) { 
 			throw new NotFoundException("!!ERROR!! Only customers can create appointments");
@@ -97,7 +104,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 				e.printStackTrace();
 			}
 		}
-		appointmentRepository.delete(toDelete);
+//		appointmentRepository.delete(toDelete);
 		return toDelete;
 	}
 	@Override
