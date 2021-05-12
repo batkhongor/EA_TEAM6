@@ -8,17 +8,18 @@ import org.springframework.stereotype.Component;
 import ars.service.EmailService;
 @Component
 public class EmailServiceImp implements EmailService{
+
 	@Autowired
 	JavaMailSender jmsSender;
 	
 	@Override
 	public void sendEmail(String to, String subject, String text) {
 		   SimpleMailMessage message = new SimpleMailMessage(); 
-	        message.setFrom("boazturya@gmail.com");
+	        message.setFrom("cs544eateam6@gmail.com");
 	        message.setTo(to); 
 	        message.setSubject(subject); 
 	        message.setText(text);
-	        jmsSender.send(message);
+	     jmsSender.send(message);
 	}
 
 }

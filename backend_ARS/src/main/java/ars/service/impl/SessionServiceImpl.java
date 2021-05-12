@@ -14,6 +14,7 @@ import ars.exceptions.TimeConflictException;
 import ars.repository.PersonRepository;
 import ars.repository.SessionRepository;
 import ars.service.SessionService;
+import org.springframework.stereotype.Service;
 
 @Service
 public class SessionServiceImpl implements SessionService {
