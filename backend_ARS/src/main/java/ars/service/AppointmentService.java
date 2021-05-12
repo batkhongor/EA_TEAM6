@@ -2,7 +2,9 @@ package ars.service;
 
 import java.util.List;
 import ars.domain.Appointment;
+import ars.exceptions.NotAllowedException;
 import ars.exceptions.NotFoundException;
+import ars.exceptions.TimeConflictException;
 
 public interface AppointmentService {
 
@@ -10,9 +12,9 @@ public interface AppointmentService {
 	
 	List<Appointment> findAllClientAppointments(String email);
 	
-	void deleteAppointment(String email,Integer appointmentId);
+	Appointment deleteAppointment(String email,Integer appointmentId) throws NotFoundException, NotAllowedException, TimeConflictException;
 	
-	void editAppointment(String email, Integer appointmentId, Integer newSessionId);
+	Appointment editAppointment(String email, Integer appointmentId, Integer newSessionId) throws NotFoundException, NotAllowedException, TimeConflictException;
 	
 	void pickNewConfirmedAppointment(Integer sessionId); 
 	

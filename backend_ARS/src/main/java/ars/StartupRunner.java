@@ -1,6 +1,7 @@
 package ars;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Properties;
@@ -27,9 +28,10 @@ public class StartupRunner implements CommandLineRunner {
 
 	@Autowired
 	private PersonService personServiceImpl;
-	
+
 	@Autowired
 	private SessionRepository sessionRepo;
+
 
 	@Autowired
 	private EmailService emailService;
@@ -79,6 +81,7 @@ public class StartupRunner implements CommandLineRunner {
 		personServiceImpl.createPerson(person3);
 		emailService.sendEmail("brukeabebe2@gmail.com", "test", "Test");
     }
+
 
 
 
