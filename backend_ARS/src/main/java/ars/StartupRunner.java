@@ -18,7 +18,7 @@ import ars.service.PersonService;
 
 @Component
 public class StartupRunner implements CommandLineRunner {
-	
+
 	@Autowired
 	private PersonService personServiceImpl;
 	
