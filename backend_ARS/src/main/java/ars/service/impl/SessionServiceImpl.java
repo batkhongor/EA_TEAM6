@@ -61,6 +61,8 @@ public class SessionServiceImpl implements SessionService {
 
 		session.setProvider(person);
 
+		
+
 //		if(session.getDate())
 
 		return sessionRepository.save(session);
