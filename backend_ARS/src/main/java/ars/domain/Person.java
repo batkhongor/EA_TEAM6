@@ -65,4 +65,8 @@ public class Person {
 	public void addRole(RoleType roleType) {
 		roles.add(roleType);
 	}
+	
+	public boolean hasRole(RoleType roleType) {
+		return roles.contains(roleType);
+	}
 }

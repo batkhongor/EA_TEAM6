@@ -39,9 +39,6 @@ public class AdminController {
 	@Autowired
 	private SessionService sessionService;
 
-	@Autowired
-	private AdminService adminService;
-
 	/* <PERSON> */
 	@GetMapping(value = "/persons")
 	public Page<PersonDTO> getPersonList(Pageable pageable) {
@@ -104,17 +101,17 @@ public class AdminController {
 		return entity;
 	}
 
-//	@PutMapping("/sessions/{id}")
-//	public Session updateSession(@PathVariable("id") Integer sessionId, @Valid @RequestBody SessionDTO sessionDto) {
-//		adminService.findSessionById(sessionId).orElseThrow(RuntimeException::new);
-//		Session entity = sessionDto;
-//		entity = sessionService.updateSession(entity);
-//		return entity;
-//	}
+	@PutMapping("/sessions/{id}")
+	public Session updateSession(@PathVariable("id") Integer sessionId, @Valid @RequestBody SessionDTO sessionDto)
+			throws TimeConflictException, NotAllowedException {
+		Session entity = convertToEntity(sessionDto);
+		entity = sessionService.updateSession(sessionId, entity, sessionDto.getProviderEMail());
+		return entity;
+	}
 
 	@DeleteMapping("/sessions/{id}")
-	public void deleteSession(@PathVariable("id") Integer personId) {
-		personService.deletePerson(personId);
+	public void deleteSession(@PathVariable("id") Integer sessionId) {
+		sessionService.deleteSession(sessionId);
 	}
 
 	/* </SESSION> */
