@@ -56,7 +56,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/logout").authenticated()
 			//.antMatchers("/student").authenticated()
 			//.antMatchers("/client/**").hasAnyAuthority(RoleType.ADMIN.toString(), RoleType.CUSTOMER.toString())
-			.antMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.toString())
+//			.antMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.toString())
+			.antMatchers("/admin/**").permitAll()
 			.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and().csrf().disable()
 			
