@@ -45,7 +45,6 @@ public class SecurityController {
 		
 		// invalidate token on database when user logout successfully
 		
-		System.out.println("LOGOUT___");
 		String jwt_token=SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 		Token token=tokenServiceImpl.findById(jwt_token).orElse(null);
 		token.setValid();
