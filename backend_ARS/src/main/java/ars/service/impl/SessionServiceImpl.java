@@ -54,26 +54,26 @@ public class SessionServiceImpl implements SessionService {
 	}
 
 	@Override
-	public Session createSession(Session session, Integer providerId)
+	public Session createSession(Session session, String providerEMail)
 			throws TimeConflictException, NotAllowedException {
-		Person person = personRepository.findById(providerId).get();
-		
+		Person person = personRepository.findByEmailOne(providerEMail);
+
 		session.setProvider(person);
-		
+
 //		if(session.getDate())
-		
+
 		return sessionRepository.save(session);
 	}
 
 	@Override
-	public Session updateSession(Integer sessionId, Session session, Integer providerId)
+	public Session updateSession(Integer sessionId, Session session, String providerEMail)
 			throws TimeConflictException, NotAllowedException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void deleteSession(Integer sessionId, Integer providerId) throws NotAllowedException {
+	public void deleteSession(Integer sessionId, String providerEMail) throws NotAllowedException {
 		// TODO Auto-generated method stub
 
 	}
@@ -81,7 +81,7 @@ public class SessionServiceImpl implements SessionService {
 	@Override
 	public void deleteSession(Integer sessionId) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
