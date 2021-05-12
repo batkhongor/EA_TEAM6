@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import ars.domain.Person;
+import ars.exceptions.TimeConflictException;
 import ars.repository.PersonRepository;
 import ars.service.PersonService;
 
@@ -24,10 +25,12 @@ public class PersonServiceImpl implements PersonService {
 	private PasswordEncoder passwordEncoder;
 
 	public List<Person> findAll() {
+//		throw new TimeConflictException();
 		return personRepository.findAll();
 	}
 	
-	public Page<Person> findAllPaged(Pageable pageable) {
+	public Page<Person> findAll(Pageable pageable) {
+//		throw new TimeConflictException();
 		return personRepository.findAll(pageable);
 	}
 
@@ -36,7 +39,7 @@ public class PersonServiceImpl implements PersonService {
 	}
 	
 	public Optional<Person> findByEmail(String email) {
-		return personRepository.findAll().stream().filter(p-> p.getEmail().equals(email)).findAny();
+		return Optional.of(personRepository.findByEmailOne(email));
 	}
 	
 	public Person createPerson(Person person) {

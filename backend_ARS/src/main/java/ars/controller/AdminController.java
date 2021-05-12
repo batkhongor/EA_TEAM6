@@ -37,7 +37,7 @@ public class AdminController {
 	/* <PERSON> */
 	@GetMapping(value = "/persons")
 	public Page<PersonDTO> getPersonList(Pageable pageable) {
-		Page<Person> page = personService.findAllPaged(pageable);
+		Page<Person> page = personService.findAll(pageable);
 		return page.map(this::convertToPersonDto);
 	}
 

@@ -6,11 +6,36 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import ars.domain.Session;
+import ars.exceptions.NotAllowedException;
+import ars.exceptions.TimeConflictException;
 
 public interface SessionService {
-	List<Session> findAll();
-	
-	Page<Session> findAll(Pageable page);
-	
-	Session createSession(Session session, Integer providerId);
+	/**
+	 * Returns list of the all Sessions
+	 * 
+	 * @param futureOnly
+	 * @return
+	 */
+	List<Session> findAll(boolean futureOnly);
+
+	/**
+	 * Returns paged list of the all Sessions
+	 * 
+	 * @param page
+	 * @param futureOnly
+	 * @return
+	 */
+	Page<Session> findAll(Pageable page, boolean futureOnly);
+
+	/**
+	 * Creates a Session for the person/provider. if the person is not a Provider
+	 * then throws an NotAllowedException if session time conflicts with other
+	 * session then throws an TimeConflictException
+	 * 
+	 * @param session
+	 * @param providerId
+	 * @return
+	 */
+	Session createSession(Session session, Integer personId) throws TimeConflictException, NotAllowedException;
+
 }

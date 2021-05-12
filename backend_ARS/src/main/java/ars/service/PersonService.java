@@ -3,7 +3,6 @@ package ars.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,27 +10,15 @@ import ars.domain.Person;
 
 public interface PersonService {
 
-	public default List<Person> findAll() {
-		throw new NotYetImplementedException();
-	}
+	List<Person> findAll();
 
-	public default Page<Person> findAllPaged(Pageable pageable) {
-		throw new NotYetImplementedException();
-	}
+	Page<Person> findAll(Pageable pageable);
 
-	public default Optional<Person> findById(Integer personId) {
-		throw new NotYetImplementedException();
-	}
+	Optional<Person> findById(Integer personId);
 	
-	public default Person createPerson(Person person) {
-		throw new NotYetImplementedException();
-	}
+	Person createPerson(Person person);
 	
-	public default Person updatePerson(Person person) {
-		throw new NotYetImplementedException();
-	}
+	Person updatePerson(Person person);
 	
-	public default void deletePerson(Integer personId) {
-		throw new NotYetImplementedException();
-	}
+	void deletePerson(Integer personId);
 }
