@@ -135,10 +135,6 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			appointmentToEdit.setStatus(Status.PENDING);
 		}
 		
-		emailService.sendEmail(appointmentToEdit.getClient().getEmail(), "Appointment Edited", "Appointment Edited");
-		emailService.sendEmail(appointmentToEdit.getSession().getProvider().getEmail(),  "Appointment Edited", "Appointment Changed to Another Session");
-		emailService.sendEmail(newSession.getProvider().getEmail(), "Appointment Edited", "New Appointment Added");
-		
 		appointmentToEdit.setSession(newSession);
 		appointmentRepository.save(appointmentToEdit);
 		return appointmentToEdit;
