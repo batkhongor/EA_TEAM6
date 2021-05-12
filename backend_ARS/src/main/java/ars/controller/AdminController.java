@@ -6,6 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -164,8 +165,9 @@ public class AdminController {
 	}
 
 	@DeleteMapping("/appointments/{id}")
-	public void deleteAppointment(@PathVariable("id") Integer appointmentId) {
-//		appointmentService.deleteAppointment(appointmentId);
+	public void deleteAppointment(@PathVariable("id") Integer appointmentId, Authentication authentication)
+			throws NotFoundException, NotAllowedException, TimeConflictException {
+		appointmentService.deleteAppointment(authentication.getName(), appointmentId);
 	}
 
 	/* </APPOINTMENT> */
