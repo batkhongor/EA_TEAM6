@@ -1,8 +1,5 @@
 package ars.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
@@ -38,15 +35,9 @@ public class AdminController {
 	private AdminService adminService;
 
 	/* <PERSON> */
-	@GetMapping("/persons")
-	public List<PersonDTO> getPersonList() {
-		List<Person> list = personService.findAll();
-		return list.stream().map(this::convertToPersonDto).collect(Collectors.toList());
-	}
-
-	@GetMapping(value = "/persons", params = "paged=true")
+	@GetMapping(value = "/persons")
 	public Page<PersonDTO> getPersonList(Pageable pageable) {
-		Page<Person> page = personService.findAllPaged(pageable);
+		Page<Person> page = personService.findAll(pageable);
 		return page.map(this::convertToPersonDto);
 	}
 
@@ -78,13 +69,8 @@ public class AdminController {
 	/* </PERSON> */
 
 	/* <SESSION> */
-	@GetMapping("/sessions")
-	public List<Session> getSessionList() {
-		List<Session> list = adminService.findAllSessions();
-		return list;// .stream().map(this::convertToPersonDto).collect(Collectors.toList());
-	}
 
-	@GetMapping(value = "/sessions", params = "paged=true")
+	@GetMapping(value = "/sessions")
 	public Page<Session> getSessionList(Pageable pageable) {
 		Page<Session> page = adminService.findAllSessions(pageable);
 		return page;
