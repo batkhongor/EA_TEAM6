@@ -17,6 +17,8 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,7 +57,8 @@ public class Session {
 	@ManyToOne
 	@JoinColumn(name = "provider_id", nullable = false)
 	private Person provider;
-
+	
+	@JsonIgnore
 	@OneToMany(mappedBy = "session")
 	private List<Appointment> appointmentRequests;
 
