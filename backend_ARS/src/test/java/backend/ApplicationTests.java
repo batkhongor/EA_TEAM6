@@ -3,16 +3,13 @@ package backend;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -20,20 +17,22 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ars.Application;
 import ars.domain.Person;
 import ars.domain.RoleType;
-import ars.domain.Session;
-import ars.service.impl.ClientServiceImpl;
+import ars.service.impl.AppointmentServiceImpl;
 import ars.service.impl.PersonServiceImpl;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
   classes = Application.class)
 class ApplicationTests {
+
+	@Test 
+	void contextLoads() {}
 	
 	@Autowired
 	private PersonServiceImpl personServiceImpl;
 	
 	@Autowired
-	private ClientServiceImpl clientServiceImpl;
+	private AppointmentServiceImpl clientServiceImpl;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
