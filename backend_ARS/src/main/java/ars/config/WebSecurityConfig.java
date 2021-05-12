@@ -34,16 +34,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
     	
-    	
+    	//  to get userdata from database using userDetailServiceImpl
     	auth.userDetailsService(userDetailServiceImpl);
-    	/*
-    	BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        auth.inMemoryAuthentication()
-    	.passwordEncoder(encoder)
-    	.withUser("service")
-    	.password(encoder.encode("123"))
-    	.roles("Service");
-    	*/
     }
     
     @Bean
@@ -54,15 +46,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+    	
 		http		
 		.authorizeRequests()
 			.antMatchers("/favicon.ico").permitAll()
 			.antMatchers("/authenticate").permitAll()
 			//.antMatchers("/hello").permitAll()
 			.antMatchers("/provider/*").permitAll()
-			//.antMatchers("/provider/*").authenticated()
+			.antMatchers("/logout").authenticated()
 			//.antMatchers("/student").authenticated()
-			.antMatchers("/admin/*").hasAnyAuthority("ADMIN")
+			//.antMatchers("/client/**").hasAnyAuthority(RoleType.ADMIN.toString(), RoleType.CUSTOMER.toString())
+			.antMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.toString())
 			.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and().csrf().disable()
 			

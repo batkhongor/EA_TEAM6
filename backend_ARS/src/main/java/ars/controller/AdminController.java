@@ -1,8 +1,5 @@
 package ars.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
@@ -19,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ars.domain.Person;
+import ars.domain.Session;
 import ars.dto.PersonDTO;
+import ars.service.AdminService;
 import ars.service.PersonService;
 
 @RestController
@@ -32,15 +31,13 @@ public class AdminController {
 	@Autowired
 	private PersonService personService;
 
-	@GetMapping("/persons")
-	public List<PersonDTO> getPersonList() {
-		List<Person> list = personService.findAll();
-		return list.stream().map(this::convertToPersonDto).collect(Collectors.toList());
-	}
+	@Autowired
+	private AdminService adminService;
 
-	@GetMapping(value = "/persons", params = "paged=true")
+	/* <PERSON> */
+	@GetMapping(value = "/persons")
 	public Page<PersonDTO> getPersonList(Pageable pageable) {
-		Page<Person> page = personService.findAllPaged(pageable);
+		Page<Person> page = personService.findAll(pageable);
 		return page.map(this::convertToPersonDto);
 	}
 
@@ -69,7 +66,45 @@ public class AdminController {
 	public void deletePerson(@PathVariable("id") Integer personId) {
 		personService.deletePerson(personId);
 	}
+	/* </PERSON> */
 
+	/* <SESSION> */
+
+	@GetMapping(value = "/sessions")
+	public Page<Session> getSessionList(Pageable pageable) {
+		Page<Session> page = adminService.findAllSessions(pageable);
+		return page;
+	}
+
+	@GetMapping("/sessions/{id}")
+	public Session getSession(@PathVariable("id") Integer personId) {
+		Session entity = adminService.findSessionById(personId).get();
+		return entity;
+	}
+
+	@PostMapping("/sessions")
+	public Session createSession(@Valid @RequestBody Session personDto) {
+		Session entity = personDto;
+		entity = adminService.createSession(entity);
+		return entity;
+	}
+
+	@PutMapping("/sessions/{id}")
+	public Session updateSession(@PathVariable("id") Integer sessionId, @Valid @RequestBody Session sessionDto) {
+		adminService.findSessionById(sessionId).orElseThrow(RuntimeException::new);
+		Session entity = sessionDto;
+		entity = adminService.updateSession(entity);
+		return entity;
+	}
+
+	@DeleteMapping("/sessions/{id}")
+	public void deleteSession(@PathVariable("id") Integer personId) {
+		personService.deletePerson(personId);
+	}
+
+	/* </SESSION> */
+
+	/* <private methods> */
 	private PersonDTO convertToPersonDto(Person person) {
 		PersonDTO pDto = modelMapper.map(person, PersonDTO.class);
 		pDto.setPassword("");
@@ -80,4 +115,5 @@ public class AdminController {
 		Person entity = modelMapper.map(pDto, Person.class);
 		return entity;
 	}
+	/* </private methods> */
 }

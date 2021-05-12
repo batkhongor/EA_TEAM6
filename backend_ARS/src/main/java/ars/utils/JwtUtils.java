@@ -7,9 +7,13 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import ars.domain.Person;
+import ars.domain.Token;
+import ars.service.impl.TokenServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,7 +24,8 @@ public class JwtUtils {
 	
 	private SecretKey SECRET_KEY;
 	
-	
+	@Autowired
+	private TokenServiceImpl tokenServiceImpl;
 	
 	public JwtUtils() {
 		this.SECRET_KEY=Keys.secretKeyFor(SignatureAlgorithm.HS256);
@@ -63,8 +68,14 @@ public class JwtUtils {
 		return extractExpiration(token).before(new Date());
 	}
 	
+	private boolean isActive(String token) {
+		Token jwt_token= tokenServiceImpl.findById(token).orElse(null);
+		return jwt_token.isValid();
+	}
+	
 	public boolean validateToken(String token, UserDetails userDetails) {
 		final String username=extractUsername(token);
-		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token) );
+		
+		return (username.equals(userDetails.getUsername()) && isActive(token) && !isTokenExpired(token) );
 	}
 }

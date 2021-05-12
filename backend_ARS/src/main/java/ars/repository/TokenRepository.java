@@ -7,13 +7,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import ars.domain.Person;
+import ars.domain.Token;
 
 @Repository
 @Transactional
-public interface PersonRepository extends JpaRepository<Person, Integer> {
-	public List<Person> findByEmail(String email);
-
-	public default Person findByEmailOne(String email) {
-		return findByEmail(email).get(0);
+public interface TokenRepository extends JpaRepository<Token, String> {
+	 
+	public default List<Token> findByPerson(int personId) {
+		return findByPerson(personId);
 	}
 }
