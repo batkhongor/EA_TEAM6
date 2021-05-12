@@ -92,13 +92,9 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			}
 		}
 		if(toDelete.getStatus().equals(Status.CONFIRMED)) {
-			toDelete.setStatus(Status.CANCELLED);
-			try {
 				pickNewConfirmedAppointment(toDelete.getSession().getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
+		toDelete.setStatus(Status.CANCELLED);
 		return toDelete;
 	}
 	@Override
@@ -136,6 +132,9 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		}
 		
 		appointmentToEdit.setSession(newSession);
+		if(newSession.getAppointmentRequests().size()==1) {
+			appointmentToEdit.setStatus(Status.CONFIRMED);
+		}
 		appointmentRepository.save(appointmentToEdit);
 		return appointmentToEdit;
 	}
