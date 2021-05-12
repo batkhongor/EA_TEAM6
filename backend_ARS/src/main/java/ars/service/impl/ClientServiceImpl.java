@@ -42,7 +42,8 @@ public class ClientServiceImpl implements ClientService	 {
 	
 	@Override
 	public List<Appointment> findAllClientAppointments(String email){
-		return appointmentRepository.findByClientEmail(email);
+		//return appointmentRepository.findByClientEmail(email);
+		return null;
 	}
 	@Override
 	public String addNewAppointment(String email,Integer sessionId) {

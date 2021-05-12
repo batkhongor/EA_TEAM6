@@ -4,12 +4,12 @@ import ars.domain.*;
 import ars.repository.PersonRepository;
 import ars.repository.SessionRepository;
 import ars.service.ProviderService;
-import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -33,15 +33,36 @@ public class ProviderServiceImpl implements ProviderService {
                 .contains(RoleType.PROVIDER)).collect(Collectors.toList());
     }
 
-    public  List<Appointment> findAllAppointmentsForASession(Integer SessionId) {
-       return sessionRepository.findById(SessionId).get().getAppointmentRequests();
+    public  List<Appointment> findAllAppointmentsForASession(Integer SessionId, Authentication authentication) {
+
+        String email = authentication.getName();
+        Person provider= (Person) personRepository.findByEmailOne(email);
+        Integer providerId= provider.getId();
+        if(providerId==SessionId) {
+
+            return sessionRepository.findById(SessionId).get().getAppointmentRequests();
+        }
+        else
+        {
+            throw new RuntimeException();
+        }
+
     }
 
-    public Appointment findConfirmedAppointment(Integer SessionId)
+    public Optional<Appointment> findConfirmedAppointment(Integer SessionId, Authentication authentication)
     {
+        String email = authentication.getName();
+        Person provider= (Person) personRepository.findByEmailOne(email);
+        Integer providerId= provider.getId();
 
-        return (Appointment) sessionRepository.findById(SessionId).get().getAppointmentRequests().stream()
-                .filter(appointment -> appointment.getStatus()== Status.CONFIRMED);
+        if(providerId==SessionId) {
+            return sessionRepository.findById(SessionId).get().getAppointmentRequests().stream()
+                    .filter(appointment -> appointment.getStatus() == Status.CONFIRMED).findAny();
+        }
+        else
+        {
+            throw new RuntimeException();
+        }
 
     }
 

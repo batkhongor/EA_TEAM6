@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import ars.service.EmailService;
 @Component
 public class EmailServiceImp implements EmailService{
+
 	@Autowired
 	JavaMailSender jmsSender;
 	
@@ -18,7 +19,7 @@ public class EmailServiceImp implements EmailService{
 	        message.setTo(to); 
 	        message.setSubject(subject); 
 	        message.setText(text);
-	        jmsSender.send(message);
+	     //   jmsSender.send(message);
 	}
 
 }

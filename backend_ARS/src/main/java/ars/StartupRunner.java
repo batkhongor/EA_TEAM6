@@ -3,10 +3,14 @@ package ars;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +22,7 @@ import ars.service.PersonService;
 
 @Component
 public class StartupRunner implements CommandLineRunner {
-	
+
 	@Autowired
 	private PersonService personServiceImpl;
 	
@@ -58,5 +62,24 @@ public class StartupRunner implements CommandLineRunner {
     	customer1.addRole(RoleType.CUSTOMER);
     	
     	personServiceImpl.createPerson(customer1);
+
+		//-------------ADDITIONAL PROVIDERS FOR TESTING
+		Set<RoleType> roleTypes1=new HashSet<>();
+		roleTypes1.add( RoleType.PROVIDER);
+
+		Person person2= new Person("Bruke", "Tadege", "brukeabebe2@gmail.com", "bruke", roleTypes1);
+		Person person3= new Person("mike", "mike", "mike@gmail.com", "mike", roleTypes1);
+
+		personServiceImpl.createPerson(person2);
+		personServiceImpl.createPerson(person3);
     }
+
+
+
+
+
+
+
+
+
 }
