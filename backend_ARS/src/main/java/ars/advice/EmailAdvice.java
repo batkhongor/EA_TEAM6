@@ -25,13 +25,13 @@ public class EmailAdvice {
 
 		emailService.sendEmail(
 			appointment.getClient().getEmail(), 
-			"Appointment Created", 
+			"Appointment Alert! " + joinpoint.getSignature().getName(), 
 			this.getTemplate(appointment)
 		);
 		
 		emailService.sendEmail(
 			appointment.getSession().getProvider().getEmail(),
-			"Appointment Created", 
+			"Appointment Alert! " + joinpoint.getSignature().getName(), 
 			this.getTemplate(appointment)
 		);
 	}
