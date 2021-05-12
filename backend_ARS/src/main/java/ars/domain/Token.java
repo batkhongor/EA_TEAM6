@@ -9,11 +9,13 @@ import javax.persistence.ManyToOne;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
 @Getter
 @ToString
+@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Token {
 	
@@ -27,16 +29,16 @@ public class Token {
 	@JoinColumn(name="person_id")
 	private Person owner;
 	
-	private Token() {
-		// token cannot be initialized so. It should be private
-	}
+
 	
 	public Token(String jwt, Person owner) {
 		this.jwt=jwt;
 		this.owner=owner;
 		this.valid=true;
 	}
-	
+
+
+
 	public void setOwner(Person owner) {
 		this.owner=owner;
 	}
