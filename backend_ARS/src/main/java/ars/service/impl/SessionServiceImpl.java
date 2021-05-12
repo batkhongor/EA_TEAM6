@@ -2,6 +2,7 @@ package ars.service.impl;
 
 import java.util.List;
 
+import ars.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,25 +62,64 @@ public class SessionServiceImpl implements SessionService {
 		Person person = personRepository.findByEmailOne(providerEMail);
 
 		if (!person.hasRole(RoleType.PROVIDER)) {
-			throw new NotAllowedException("");
+			throw new NotAllowedException("Not allowed to create a session");
 		}
 		session.setProvider(person);
 
-//		if(session.getDate())
+
+
+		if(sessionRepository.findFutureSessions().stream()
+				.filter(session1-> session1.getProvider()== session.getProvider()&&
+						session1.getDate() ==session.getDate() &&
+						session1.getStartTime()==session.getStartTime()).findAny()!=null)
+		{
+				throw new TimeConflictException("time is already occupied by another session");
+		}
+       /* else if(sessionRepository.findFutureSessions().stream()
+				.filter(session1-> session1.getProvider()== session.getProvider()&&
+						session1.getDate() ==session.getDate() &&
+						(session1.getStartTime()+duration)==session.getStartTime()).findAny()!=null)*/
+
 
 		return sessionRepository.save(session);
 	}
 
 	@Override
 	public Session updateSession(Integer sessionId, Session session, String providerEMail)
-			throws TimeConflictException, NotAllowedException {
+			throws TimeConflictException, NotAllowedException, NotFoundException {
 		// TODO Auto-generated method stub
-		return null;
+
+		Person provider = (Person) personRepository.findByEmailOne(providerEMail);
+		Integer providerId = provider.getId();
+
+		Session entity = sessionRepository.findById(sessionId).orElseThrow(new NotFoundException("Session is not found"));
+
+		if(sessionRepository.findById(sessionId).get()
+				.getProvider().getId() == providerId)
+		{
+			throw new NotAllowedException("Not allowed to update this session");
+		}
+		if (sessionId.equals(session.getId())) {
+			return sessionRepository.save(session);
+		} else {
+			throw new NotFoundException("Session missmatch");
+		}
+
 	}
 
 	@Override
 	public void deleteSession(Integer sessionId, String providerEMail) throws NotAllowedException {
 		// TODO Auto-generated method stub
+
+		Person provider = (Person) personRepository.findByEmailOne(providerEMail);
+		Integer providerId = provider.getId();
+
+		if (sessionRepository.findById(sessionId).get().getProvider().getId() == providerId) {
+
+			sessionRepository.deleteById(sessionId);
+		} else {
+			throw new NotAllowedException("Not allowed to delete this session");
+		}
 
 	}
 

@@ -68,7 +68,7 @@ public interface SessionService {
 	 * @return
 	 */
 	Session updateSession(Integer sessionId, Session session, String providerEMail)
-			throws TimeConflictException, NotAllowedException;
+			throws TimeConflictException, NotAllowedException, NotFoundException;
 
 	/**
 	 * Deletes a Session of the given provider. if the person is not a Provider then

@@ -34,7 +34,7 @@ public class ProviderController {
 //Get All appointments for a given session
     @GetMapping("/Appointments/{id}")
     public  List<Appointment> findAllAppointmentsForASession(@PathVariable(name="id") Integer SessionId, Authentication authentication) {
-        return providerServiceImpl.findAllAppointmentsForASession(SessionId, authentication);
+        return providerServiceImpl.findAllAppointmentsForASession(SessionId, authentication.getName());
     }
 
 
@@ -43,14 +43,14 @@ public class ProviderController {
     public Optional<Appointment> findConfirmedAppointment(@PathVariable(name="id")Integer SessionId, Authentication authentication)
     {
 
-        return providerServiceImpl.findConfirmedAppointment(SessionId,  authentication);
+        return providerServiceImpl.findConfirmedAppointment(SessionId, authentication.getName());
 
     }
 
     //List all sessions for a provider using a given provider ID
     @GetMapping("/sessions")
     public List<Session> findByEmail(Authentication authentication) {
-        return providerServiceImpl.findSessionByEmail(authentication);
+        return providerServiceImpl.findSessionByEmail(authentication.getName());
     }
 
 
@@ -58,14 +58,14 @@ public class ProviderController {
     @PostMapping("/sessions")
     public Session createSession(@Valid @RequestBody Session session,Authentication authentication) {
 
-        return providerServiceImpl.createSession(session,authentication );
+        return providerServiceImpl.createSession(session,authentication.getName() );
     }
 
 
     @PutMapping("sessions/{id}")
     public Session updateSession(@PathVariable(name="id") Integer SessionId , @Valid @RequestBody Session session, Authentication authentication) {
 
-        return providerServiceImpl.updateSession(SessionId, session, authentication);
+        return providerServiceImpl.updateSession(SessionId, session, authentication.getName());
 
 
 
@@ -73,7 +73,7 @@ public class ProviderController {
 
     @DeleteMapping("/sessions/{id}")
     void deleteSession(@PathVariable Integer id, Authentication authentication) {
-                providerServiceImpl.deleteSession(id, authentication);
+                providerServiceImpl.deleteSession(id, authentication.getName());
     }
 
     }

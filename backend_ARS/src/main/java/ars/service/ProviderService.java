@@ -28,30 +28,29 @@ public interface ProviderService {
     }
 
 
-    public default List<Session> findSessionByEmail(Authentication authentication) {
+    public default List<Session> findSessionByEmail(String Email) {
         throw new NotYetImplementedException();
     }
 
 
-    public default Session createSession(Session session, Authentication authentication) {
+    public default Session createSession(Session session, String Email) {
 
 
         throw new NotYetImplementedException();
     }
 
 
-    public default Session updateSession(Integer SessionId, Session session, Authentication authentication) {
+    public default Session updateSession(Integer SessionId, Session session, String Email) {
         throw new NotYetImplementedException();
 
 
     }
 
-    public default void deleteSession(Integer id, Authentication authentication) {
+    public default void deleteSession(Integer id, String Email) {
         throw new NotYetImplementedException();
     }
 
 
 }
-
 
 
