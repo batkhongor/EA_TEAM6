@@ -81,6 +81,10 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		LocalDate appDate = toDelete.getSession().getDate();
 		LocalTime appTime = toDelete.getSession().getStartTime();
 		LocalDateTime appDateTime = LocalDateTime.of(appDate,appTime);
+		
+		if(appDateTime.isBefore(LocalDateTime.now())) {
+			throw new TimeConflictException("Only future appointments can be deleted/edited");
+		}
 	
 		if(LocalDateTime.now().isAfter(appDateTime.minusHours(24))) {
 			if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN))){
@@ -88,13 +92,9 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			}
 		}
 		if(toDelete.getStatus().equals(Status.CONFIRMED)) {
-			toDelete.setStatus(Status.CANCELLED);
-			try {
 				pickNewConfirmedAppointment(toDelete.getSession().getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
+		toDelete.setStatus(Status.CANCELLED);
 		return toDelete;
 	}
 	@Override
@@ -131,11 +131,10 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			appointmentToEdit.setStatus(Status.PENDING);
 		}
 		
-		emailService.sendEmail(appointmentToEdit.getClient().getEmail(), "Appointment Edited", "Appointment Edited");
-		emailService.sendEmail(appointmentToEdit.getSession().getProvider().getEmail(),  "Appointment Edited", "Appointment Changed to Another Session");
-		emailService.sendEmail(newSession.getProvider().getEmail(), "Appointment Edited", "New Appointment Added");
-		
 		appointmentToEdit.setSession(newSession);
+		if(newSession.getAppointmentRequests().size()==1) {
+			appointmentToEdit.setStatus(Status.CONFIRMED);
+		}
 		appointmentRepository.save(appointmentToEdit);
 		return appointmentToEdit;
 	}
