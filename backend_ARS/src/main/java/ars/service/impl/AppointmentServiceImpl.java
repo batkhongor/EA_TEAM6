@@ -16,15 +16,18 @@ import ars.domain.Person;
 import ars.domain.RoleType;
 import ars.domain.Session;
 import ars.domain.Status;
+import ars.exceptions.NotFoundException;
+import ars.exceptions.TimeConflictException;
 import ars.repository.AppointmentRepository;
 import ars.repository.PersonRepository;
 import ars.repository.SessionRepository;
+import ars.service.AppointmentService;
 import ars.service.ClientService;
 import ars.service.EmailService;
 
 //SERVICE
 @Service
-public class ClientServiceImpl implements ClientService	 {
+public class AppointmentServiceImpl implements AppointmentService	 {
 	@Autowired
 	AppointmentRepository appointmentRepository;
 	@Autowired
@@ -35,21 +38,15 @@ public class ClientServiceImpl implements ClientService	 {
 	EmailService emailService;
 	
 	
-	@Override
-	public List<Session> findAllSessions(){
-		return sessionRepository.findAll();
-	}
 	
 	@Override
 	public List<Appointment> findAllClientAppointments(String email){
 		return appointmentRepository.findAll().stream().filter(a->a.getClient().getEmail().equals(email)).collect(Collectors.toList());
 	}
 	@Override
-	public String addNewAppointment(String email,Integer sessionId) {
+	public Appointment createAppointment(String email,Integer sessionId) {
 		
-		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst().get();
-		if(client==null) { 
-			return "!!ERROR!! No person with this id";
+		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst().!!ERROR!! No person with this id";
 		}
 		
 		if(	client.getRoles().stream().noneMatch(r->r.equals(RoleType.CUSTOMER))) { 
@@ -72,20 +69,20 @@ public class ClientServiceImpl implements ClientService	 {
 		
 	}
 	@Override
-	public String deleteAppointment(String email , Integer appointmentId) {
-	
+	public void deleteAppointment(String email , Integer appointmentId) {
 		Person personTryingToDelete = personRepository.findByEmailOne(email);
 		if(personTryingToDelete==null) {
 			return "!!ERROR!! No person with this id";
 		}
 		if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN)||r.equals(RoleType.CUSTOMER))) {
-			return "!!ERROR!! Only Admins and Clients can delete an appointment";
+			throw new IllegalAccessException("Only Admins and Clients can delete an appointment");
 		}
 		
-		Appointment toDelete = appointmentRepository.findById(appointmentId).get();
-		if(toDelete==null) {
-			return "!!ERROR!! appointment with this id does not exist in the records";
-		}
+
+		
+		Appointment toDelete = appointmentRepository.findById(appointmentId)
+					.orElseThrow(()-> new NotFoundException("!!ERROR!! appointment with this id does not exist in the records"));
+
 		
 		LocalDate appDate = toDelete.getSession().getDate();
 		LocalTime appTime = LocalTime.of(toDelete.getSession().getStartTime(),0);
@@ -93,7 +90,7 @@ public class ClientServiceImpl implements ClientService	 {
 	
 		if(LocalDateTime.now().isAfter(appDateTime.minusHours(24))) {
 			if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN))){
-				return "!!ERROR!! Only Admins can delete a an Appointment within 24hours of session";
+				throw new TimeConflictException("!!ERROR!! Only Admins can delete a an Appointment within 24hours of session");
 			}
 		}
 		if(toDelete.getStatus().equals(Status.CONFIRMED)) {
@@ -105,13 +102,12 @@ public class ClientServiceImpl implements ClientService	 {
 			}
 		}
 		appointmentRepository.delete(toDelete);
-		
-		emailService.sendEmail(toDelete.getClient().getEmail(), "Appointment Deleted", "Appointment NO. "+appointmentId+" was Deleted");
-		emailService.sendEmail(toDelete.getSession().getProvider().getEmail(), "Appointment Deleted", "Appointment NO. "+appointmentId+" was Deleted");
-		return "SUCCESSFULLY Deleted";
 	}
 	@Override
-	public String editAppointment(String email, Integer appointmentId,Integer newSessionId) {
+	public void editAppointment(Integer appointmentId, LocalDate newDate, Integer newTime) {
+		// TODO Auto-generated method stub
+		Appointment appointmentToEdit = appointmentRepository.findById(appointmentId).orElseThrow(()-> new NoSuchElementException("Appointment does not exist"));
+
 		Appointment appointmentToEdit = appointmentRepository.findById(appointmentId).get();
 		Person person = personRepository.findByEmailOne(email);
 		
@@ -161,12 +157,6 @@ public class ClientServiceImpl implements ClientService	 {
 		toConfirm.setConfirmedDate(LocalDate.now());
 
 		appointmentRepository.save(toConfirm);
-	}
-
-	@Override
-	public List<Person> findAllClients() {
-		return personRepository.findAll().stream().filter(cl->cl.getRoles().contains(RoleType.CUSTOMER))
-								.collect(Collectors.toList());
 	}
 
 }
