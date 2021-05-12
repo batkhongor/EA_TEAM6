@@ -18,9 +18,6 @@ import java.util.stream.Collectors;
 public class ProviderServiceImpl implements ProviderService {
 
 
-
-
-
     @Autowired
     private PersonRepository personRepository;
 
@@ -33,34 +30,29 @@ public class ProviderServiceImpl implements ProviderService {
                 .contains(RoleType.PROVIDER)).collect(Collectors.toList());
     }
 
-    public  List<Appointment> findAllAppointmentsForASession(Integer SessionId, Authentication authentication) {
+    public List<Appointment> findAllAppointmentsForASession(Integer SessionId, String email) {
 
-        String email = authentication.getName();
-        Person provider= (Person) personRepository.findByEmailOne(email);
-        Integer providerId= provider.getId();
-        if(providerId==SessionId) {
+
+        Person provider = (Person) personRepository.findByEmailOne(email);
+        Integer providerId = provider.getId();
+        if (providerId == SessionId) {
 
             return sessionRepository.findById(SessionId).get().getAppointmentRequests();
-        }
-        else
-        {
+        } else {
             throw new RuntimeException();
         }
 
     }
 
-    public Optional<Appointment> findConfirmedAppointment(Integer SessionId, Authentication authentication)
-    {
-        String email = authentication.getName();
-        Person provider= (Person) personRepository.findByEmailOne(email);
-        Integer providerId= provider.getId();
+    public Optional<Appointment> findConfirmedAppointment(Integer SessionId, String email) {
 
-        if(providerId==SessionId) {
+        Person provider = (Person) personRepository.findByEmailOne(email);
+        Integer providerId = provider.getId();
+
+        if (providerId == SessionId) {
             return sessionRepository.findById(SessionId).get().getAppointmentRequests().stream()
                     .filter(appointment -> appointment.getStatus() == Status.CONFIRMED).findAny();
-        }
-        else
-        {
+        } else {
             throw new RuntimeException();
         }
 
@@ -68,51 +60,42 @@ public class ProviderServiceImpl implements ProviderService {
 
 
     // find all sessions for the given provider
-    public List<Session> findSessionByEmail(Authentication authentication) {
+    public List<Session> findSessionByEmail(String email) {
 
-        String email = authentication.getName();
-        Person provider= (Person) personRepository.findByEmailOne(email);
-        Integer providerId= provider.getId();
-        return sessionRepository.findAll().stream().filter(session -> session.getProvider().getId()==providerId)
+
+        Person provider = (Person) personRepository.findByEmailOne(email);
+        Integer providerId = provider.getId();
+        return sessionRepository.findAll().stream().filter(session -> session.getProvider().getId() == providerId)
                 .collect(Collectors.toList());
     }
 
 
+    public Session createSession(Session session, String email) {
 
 
-    public Session createSession(Session session,Authentication authentication) {
-
-        String email = authentication.getName();
-        Person provider= (Person) personRepository.findByEmailOne(email);
-        Integer providerId= provider.getId();
+        Person provider = (Person) personRepository.findByEmailOne(email);
+        Integer providerId = provider.getId();
 
 
-        if(session.getProvider().getId()==providerId) {
+        if (session.getProvider().getId() == providerId) {
             return sessionRepository.save(session);
-        }
-
-        else
-        {
+        } else {
             throw new RuntimeException();
         }
     }
 
 
+    public Session updateSession(Integer SessionId, Session session, String email) {
 
-    public Session updateSession(Integer SessionId , Session session, Authentication authentication) {
 
-        String email = authentication.getName();
-        Person provider= (Person) personRepository.findByEmailOne(email);
-        Integer providerId= provider.getId();
+        Person provider = (Person) personRepository.findByEmailOne(email);
+        Integer providerId = provider.getId();
 
-        Session entity =sessionRepository.findById(SessionId).orElseThrow(RuntimeException::new);
+        Session entity = sessionRepository.findById(SessionId).orElseThrow(RuntimeException::new);
 
-        if(SessionId.equals(session.getId()) & sessionRepository.findById(SessionId).get().getProvider().getId()==providerId)
-        {
+        if (SessionId.equals(session.getId()) & sessionRepository.findById(SessionId).get().getProvider().getId() == providerId) {
             return sessionRepository.save(session);
-        }
-        else
-        {
+        } else {
             throw new RuntimeException();
         }
 
@@ -120,20 +103,17 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
 
-    public void deleteSession(Integer id, Authentication authentication) {
-        String email = authentication.getName();
-        Person provider= (Person) personRepository.findByEmailOne(email);
-        Integer providerId= provider.getId();
+    public void deleteSession(Integer id, String email) {
 
-        if(sessionRepository.findById(id).get().getProvider().getId()==providerId) {
+        Person provider = (Person) personRepository.findByEmailOne(email);
+        Integer providerId = provider.getId();
+
+        if (sessionRepository.findById(id).get().getProvider().getId() == providerId) {
 
             sessionRepository.deleteById(id);
-        }
-        else
-        {
+        } else {
             throw new RuntimeException();
         }
 
     }
 }
-
