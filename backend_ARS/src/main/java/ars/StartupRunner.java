@@ -20,6 +20,8 @@ import ars.domain.Session;
 import ars.repository.SessionRepository;
 import ars.service.PersonService;
 
+import ars.service.EmailService;
+
 @Component
 public class StartupRunner implements CommandLineRunner {
 
@@ -28,6 +30,9 @@ public class StartupRunner implements CommandLineRunner {
 	
 	@Autowired
 	private SessionRepository sessionRepo;
+
+	@Autowired
+	private EmailService emailService;
 	
     @Override
     @Transactional
@@ -72,7 +77,9 @@ public class StartupRunner implements CommandLineRunner {
 
 		personServiceImpl.createPerson(person2);
 		personServiceImpl.createPerson(person3);
+		emailService.sendEmail("brukeabebe2@gmail.com", "test", "Test");
     }
+
 
 
 
