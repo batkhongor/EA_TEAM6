@@ -16,8 +16,4 @@ public interface AppointmentService {
 	
 	Appointment editAppointment(String email, Integer appointmentId, Integer newSessionId) throws NotFoundException, NotAllowedException, TimeConflictException;
 	
-	void pickNewConfirmedAppointment(Integer sessionId) throws NotAllowedException; 
-	
-	
-	
 }
