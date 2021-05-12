@@ -88,39 +88,48 @@ public class SessionServiceImpl implements SessionService {
 	public Session updateSession(Integer sessionId, Session session, String providerEMail)
 			throws TimeConflictException, NotAllowedException, NotFoundException {
 		// TODO Auto-generated method stub
-
-		Person provider = (Person) personRepository.findByEmailOne(providerEMail);
-		Integer providerId = provider.getId();
-
 		Session entity = sessionRepository.findById(sessionId).orElseThrow(new NotFoundException("Session is not found"));
 
-		if(sessionRepository.findById(sessionId).get()
-				.getProvider().getId() == providerId)
-		{
-			throw new NotAllowedException("Not allowed to update this session");
-		}
-		if (sessionId.equals(session.getId())) {
-			return sessionRepository.save(session);
-		} else {
-			throw new NotFoundException("Session missmatch");
-		}
+		Person person = (Person) personRepository.findByEmailOne(providerEMail);
+		Integer personId = person.getId();
 
+		if (person.hasRole(RoleType.ADMIN)) {
+
+			return sessionRepository.save(session);
+		}
+		else {
+			if (entity.getProvider().getId() == personId) {
+				throw new NotAllowedException("Not allowed to update this session");
+			}
+			if (sessionId.equals(session.getId())) {
+				return sessionRepository.save(session);
+			} else {
+				throw new NotFoundException("Session missmatch");
+			}
+		}
 	}
 
 	@Override
-	public void deleteSession(Integer sessionId, String providerEMail) throws NotAllowedException {
+	public void deleteSession(Integer sessionId, String providerEMail) throws NotAllowedException, NotFoundException {
 		// TODO Auto-generated method stub
 
-		Person provider = (Person) personRepository.findByEmailOne(providerEMail);
-		Integer providerId = provider.getId();
+		Session entity = sessionRepository.findById(sessionId).orElseThrow(new NotFoundException("Session is not found"));
 
-		if (sessionRepository.findById(sessionId).get().getProvider().getId() == providerId) {
+		Person person = (Person) personRepository.findByEmailOne(providerEMail);
+		Integer personId = person.getId();
+		if (person.hasRole(RoleType.ADMIN)) {
 
 			sessionRepository.deleteById(sessionId);
-		} else {
-			throw new NotAllowedException("Not allowed to delete this session");
 		}
+		else {
+			if (entity.getProvider().getId() == personId) {
 
+				sessionRepository.deleteById(sessionId);
+			} else {
+				throw new NotAllowedException("Not allowed to delete this session");
+			}
+
+		}
 	}
 
 	@Override
