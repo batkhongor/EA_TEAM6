@@ -28,7 +28,7 @@ public class Application {
 		mailSender.setHost("smtp.gmail.com");
 		mailSender.setPort(587);
 
-		mailSender.setUsername("cs544ea_Team6@gmail.com");
+		mailSender.setUsername("cs544eateam6@gmail.com");
 		mailSender.setPassword("cs544ea_Team6");
 
 		Properties props = mailSender.getJavaMailProperties();
