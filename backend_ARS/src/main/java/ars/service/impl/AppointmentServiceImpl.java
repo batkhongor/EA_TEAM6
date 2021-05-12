@@ -126,7 +126,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		}
 		Integer currentSessionId = appointmentToEdit.getSession().getId();
 		if(appointmentToEdit.getStatus().equals(Status.CONFIRMED)) {
-			pickNewConfirmedAppointment(currentSessionId);//pick a new confirmed for this session
+			pickNewConfirmedAppointment(currentSessionId);
 			
 			appointmentToEdit.setStatus(Status.PENDING);
 		}
@@ -141,8 +141,12 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 	}
 		
 	@Override
-	public void  pickNewConfirmedAppointment(Integer sessionId) {
+	public void  pickNewConfirmedAppointment(Integer sessionId) throws NotAllowedException {
 		Session toEdit = sessionRepository.findById(sessionId).get();
+		
+		if(toEdit.getAppointmentRequests().stream().anyMatch(a->a.getStatus().equals(Status.CONFIRMED))) {
+			throw new NotAllowedException("Session already has a confirmed appointment");
+		}
 		
 		Appointment toConfirm = toEdit.getAppointmentRequests().stream()
 									.filter(a->a.getStatus().equals(Status.PENDING))
