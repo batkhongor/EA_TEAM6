@@ -10,9 +10,9 @@ public interface AppointmentService {
 	
 	List<Appointment> findAllClientAppointments(String email);
 	
-	void deleteAppointment(String email,Integer appointmentId);
+	Appointment deleteAppointment(String email,Integer appointmentId);
 	
-	void editAppointment(String email, Integer appointmentId, Integer newSessionId);
+	Appointment editAppointment(String email, Integer appointmentId, Integer newSessionId);
 	
 	void pickNewConfirmedAppointment(Integer sessionId); 
 	
