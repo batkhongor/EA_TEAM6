@@ -143,7 +143,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		return appointmentToEdit;
 	}
 		
-	@Override
+	
 	public void  pickNewConfirmedAppointment(Integer sessionId) throws NotAllowedException {
 //		Session toEdit = sessionRepository.findById(sessionId).get();
 		List<Appointment> confirmedAppointmentList = 
