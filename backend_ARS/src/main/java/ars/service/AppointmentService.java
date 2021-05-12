@@ -1,14 +1,11 @@
 package ars.service;
 
 import java.util.List;
-
 import ars.domain.Appointment;
-import ars.domain.Session;
 import ars.exceptions.NotFoundException;
 
 public interface AppointmentService {
 
-	
 	Appointment createAppointment(String Email, Integer sessionId) throws NotFoundException;
 	
 	List<Appointment> findAllClientAppointments(String email);
