@@ -42,13 +42,15 @@ public class ClientServiceImpl implements ClientService	 {
 	
 	@Override
 	public List<Appointment> findAllClientAppointments(String email){
-		return appointmentRepository.findByClientEmail(email);
+		return appointmentRepository.findAll().stream().filter(a->a.getClient().getEmail().equals(email)).collect(Collectors.toList());
 	}
 	@Override
 	public String addNewAppointment(String email,Integer sessionId) {
 		
-		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
-												.orElseThrow(()->new NoSuchElementException("!!ERROR!! No person with this id"));
+		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst().get();
+		if(client==null) { 
+			return "!!ERROR!! No person with this id";
+		}
 		
 		if(	client.getRoles().stream().noneMatch(r->r.equals(RoleType.CUSTOMER))) { 
 			return "!!ERROR!! Only customers can create appointments";
@@ -66,21 +68,24 @@ public class ClientServiceImpl implements ClientService	 {
 			newAppointment.setStatus(Status.CONFIRMED);
 		}
 		appointmentRepository.save(newAppointment);
-		return "SUCCESS";
+		return "SUCCESSFULLY ADDED";
 		
 	}
 	@Override
 	public String deleteAppointment(String email , Integer appointmentId) {
 	
 		Person personTryingToDelete = personRepository.findByEmailOne(email);
-		if(personTryingToDelete==null) {return "!!ERROR!! No person with this id";}
-		
+		if(personTryingToDelete==null) {
+			return "!!ERROR!! No person with this id";
+		}
 		if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN)||r.equals(RoleType.CUSTOMER))) {
-			return "!!ERROR. Only Admins and Clients can delete an appointment";
+			return "!!ERROR!! Only Admins and Clients can delete an appointment";
 		}
 		
-		Appointment toDelete = appointmentRepository.findById(appointmentId)
-				.orElseThrow(()->new NoSuchElementException("appointment does not exist in the records"));
+		Appointment toDelete = appointmentRepository.findById(appointmentId).get();
+		if(toDelete==null) {
+			return "!!ERROR!! appointment with this id does not exist in the records";
+		}
 		
 		LocalDate appDate = toDelete.getSession().getDate();
 		LocalTime appTime = LocalTime.of(toDelete.getSession().getStartTime(),0);
@@ -88,7 +93,7 @@ public class ClientServiceImpl implements ClientService	 {
 	
 		if(LocalDateTime.now().isAfter(appDateTime.minusHours(24))) {
 			if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN))){
-				return "!!ERROR.Only Admins can delete a an Appointment within 24hours of session";
+				return "!!ERROR!! Only Admins can delete a an Appointment within 24hours of session";
 			}
 		}
 		if(toDelete.getStatus().equals(Status.CONFIRMED)) {
@@ -103,22 +108,31 @@ public class ClientServiceImpl implements ClientService	 {
 		
 		emailService.sendEmail(toDelete.getClient().getEmail(), "Appointment Deleted", "Appointment NO. "+appointmentId+" was Deleted");
 		emailService.sendEmail(toDelete.getSession().getProvider().getEmail(), "Appointment Deleted", "Appointment NO. "+appointmentId+" was Deleted");
-		return "Successfully Deleted";
+		return "SUCCESSFULLY Deleted";
 	}
 	@Override
 	public String editAppointment(String email, Integer appointmentId,Integer newSessionId) {
 		Appointment appointmentToEdit = appointmentRepository.findById(appointmentId).get();
+		Person person = personRepository.findByEmailOne(email);
 		
-		if(personRepository.findByEmailOne(email).getRoles().contains(RoleType.CUSTOMER)) {
+		if(appointmentToEdit==null) {return "!!ERROR!! Appointment does not exist";}
+		
+		if(person.getRoles().contains(RoleType.CUSTOMER)) {
 			if(!appointmentToEdit.getClient().getEmail().equals(email)) {
-				return "Client can only edit own appointment";
+				return "!!ERROR!! Client can only edit own appointment";
 			}
 		}
 				
-		if(appointmentToEdit==null) {return "Appointment does not exist";}
 		Session newSession = sessionRepository.findById(newSessionId).get();
-		if(newSession==null) {return "No Session with this id";}
+		if(newSession==null) {return "!!ERROR!! No Session with this id";}
 		
+		LocalDateTime newSessionDateTime = LocalDateTime.of(newSession.getDate(), LocalTime.of(newSession.getStartTime(),0));
+	
+		if(LocalDateTime.now().isAfter(newSessionDateTime.minusHours(24))) {
+			if(person.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN))){
+				return "!!ERROR!! Less than 24hours before Session. Only Admins can make changes now";
+			}
+		}
 		
 		appointmentToEdit.setSession(newSession);
 		
@@ -133,7 +147,7 @@ public class ClientServiceImpl implements ClientService	 {
 		
 		emailService.sendEmail(appointmentToEdit.getClient().getEmail(), "Appointment Edited", "Appointment Edited");
 		emailService.sendEmail(appointmentToEdit.getSession().getProvider().getEmail(), "Appointment Edited", "Appointment Edited");
-		return "SUCCESS";
+		return "SUCCESSFULLY EDITED";
 	}
 		
 	@Override
@@ -142,7 +156,7 @@ public class ClientServiceImpl implements ClientService	 {
 		
 		Appointment toConfirm = toEdit.getAppointmentRequests().stream()
 									.filter(a->a.getStatus().equals(Status.PENDING))
-									.sorted(Comparator.comparing(Appointment::getCreatedDate)).findFirst().get();
+									.sorted(Comparator.comparing(Appointment::getCreatedDate).reversed()).findFirst().get();
 		toConfirm.setStatus(Status.CONFIRMED);
 		toConfirm.setConfirmedDate(LocalDate.now());
 
