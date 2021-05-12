@@ -15,6 +15,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -44,6 +46,7 @@ public class Person {
 	@Column(length = 100, nullable = false)
 	private String email;
 
+	@JsonIgnore
 	@Column(length = 128, nullable = false)
 	private String password;
 
@@ -58,7 +61,7 @@ public class Person {
 		this.password = password;
 		this.roles = roles;
 	}
-	
+
 	public void addRole(RoleType roleType) {
 		roles.add(roleType);
 	}
