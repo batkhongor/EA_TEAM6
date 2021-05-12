@@ -15,14 +15,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ars.domain.Appointment;
 import ars.domain.Person;
 import ars.domain.Session;
+import ars.dto.AppointmentDTO;
 import ars.dto.PersonDTO;
 import ars.dto.SessionDTO;
 import ars.exceptions.NotAllowedException;
 import ars.exceptions.NotFoundException;
 import ars.exceptions.TimeConflictException;
 import ars.service.AdminService;
+import ars.service.AppointmentService;
 import ars.service.PersonService;
 import ars.service.SessionService;
 
@@ -38,6 +41,12 @@ public class AdminController {
 
 	@Autowired
 	private SessionService sessionService;
+
+	@Autowired
+	private AppointmentService appointmentService;
+
+	@Autowired
+	private AdminService adminService;
 
 	/* <PERSON> */
 	@GetMapping(value = "/persons")
@@ -103,7 +112,7 @@ public class AdminController {
 
 	@PutMapping("/sessions/{id}")
 	public Session updateSession(@PathVariable("id") Integer sessionId, @Valid @RequestBody SessionDTO sessionDto)
-			throws TimeConflictException, NotAllowedException {
+			throws TimeConflictException, NotAllowedException, NotFoundException {
 		Session entity = convertToEntity(sessionDto);
 		entity = sessionService.updateSession(sessionId, entity, sessionDto.getProviderEMail());
 		return entity;
@@ -115,6 +124,51 @@ public class AdminController {
 	}
 
 	/* </SESSION> */
+
+	/* <APPOINTMENT> */
+
+	@GetMapping(value = "/appointments")
+	public Page<Appointment> getAppointmentList(Pageable pageable) {
+		Page<Appointment> page = adminService.findAllAppointments(pageable);
+		return page;
+	}
+
+//	@GetMapping(value = "/appointments", params = "paged=true")
+//	public Page<Appointment> getFutureAppointmentList(Pageable pageable) {
+//		Page<Appointment> page = appointmentService.findAll(pageable, true);
+//		return page;
+//	}
+
+//	@GetMapping("/appointments/{id}")
+//	public Appointment getAppointment(@PathVariable("id") Integer appointmentId) throws NotFoundException {
+//		Appointment entity = appointmentService.getAppointment(appointmentId);
+//		return entity;
+//	}
+
+	@PostMapping("/appointments")
+	public Appointment createAppointment(@Valid @RequestBody AppointmentDTO appointmentDto)
+			throws TimeConflictException, NotAllowedException, NotFoundException {
+		Appointment entity = appointmentService.createAppointment(appointmentDto.getClientEMail(),
+				appointmentDto.getSessionId());
+		return entity;
+	}
+
+	@PutMapping("/appointments/{id}")
+	public Appointment updateAppointment(@PathVariable("id") Integer appointmentId,
+			@Valid @RequestBody AppointmentDTO appointmentDto)
+			throws TimeConflictException, NotAllowedException, NotFoundException {
+
+		Appointment entity = appointmentService.editAppointment(appointmentDto.getClientEMail(), appointmentId,
+				appointmentDto.getSessionId());
+		return entity;
+	}
+
+	@DeleteMapping("/appointments/{id}")
+	public void deleteAppointment(@PathVariable("id") Integer appointmentId) {
+//		appointmentService.deleteAppointment(appointmentId);
+	}
+
+	/* </APPOINTMENT> */
 
 	/* <private methods> */
 	private PersonDTO convertToPersonDto(Person person) {
@@ -132,5 +186,6 @@ public class AdminController {
 		Session entity = modelMapper.map(pDto, Session.class);
 		return entity;
 	}
+
 	/* </private methods> */
 }
