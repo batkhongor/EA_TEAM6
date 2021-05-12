@@ -58,7 +58,7 @@ public interface SessionService {
 	Session updateSession(Integer sessionId, Session session, Integer providerId) throws TimeConflictException, NotAllowedException;
 
 	/**
-	 * Deletes a Session for the person/provider. if the person is not a Provider
+	 * Deletes a Session of the given provider. if the person is not a Provider
 	 * then throws an NotAllowedException if session time conflicts with other
 	 * 
 	 * @param session
@@ -66,5 +66,15 @@ public interface SessionService {
 	 * @return
 	 */
 	void deleteSession(Integer sessionId, Integer providerId) throws NotAllowedException;
+	
+	/**
+	 * Deletes a Session. if the person is not a Provider
+	 * then throws an NotAllowedException if session time conflicts with other
+	 * 
+	 * @param session
+	 * @param providerId
+	 * @return
+	 */
+	void deleteSession(Integer sessionId);
 	
 }
