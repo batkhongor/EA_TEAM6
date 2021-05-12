@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,6 @@ import ars.repository.AppointmentRepository;
 import ars.repository.PersonRepository;
 import ars.repository.SessionRepository;
 import ars.service.AppointmentService;
-import ars.service.ClientService;
 import ars.service.EmailService;
 
 //SERVICE
@@ -38,19 +35,13 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 	@Autowired
 	EmailService emailService;
 	
-	
-	
 	@Override
 	public List<Appointment> findAllClientAppointments(String email){
-//		return appointmentRepository.findAll().stream().filter(a->a.getClient().getEmail().equals(email)).collect(Collectors.toList());
 		return appointmentRepository.findAllByClientEmail(email);
 	}
 	
 	@Override
 	public Appointment createAppointment(String email,Integer sessionId) throws NotFoundException {
-		
-//		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
-//																	.orElseThrow(()->new NotFoundException("!!ERROR!! No person with this id"));
 		
 		Person client = personRepository.findByEmailOne(email);
 		
@@ -104,7 +95,6 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 				e.printStackTrace();
 			}
 		}
-//		appointmentRepository.delete(toDelete);
 		return toDelete;
 	}
 	@Override
@@ -123,28 +113,30 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		Session newSession = sessionRepository.findById(newSessionId)
 									.orElseThrow(()->new NotFoundException("!!ERROR!! No Session with this id"));
 		
-//		LocalDateTime newSessionDateTime = LocalDateTime.of(newSession.getDate(), LocalTime.of(newSession.getStartTime(),0));
 		LocalDateTime newSessionDateTime = LocalDateTime.of(newSession.getDate(), newSession.getStartTime());
+		
+		if(newSessionDateTime.isBefore(LocalDateTime.now())) {
+			throw new TimeConflictException("Only future appointments can be edited");
+		}
 	
 		if(LocalDateTime.now().isAfter(newSessionDateTime.minusHours(24))) {
 			if(person.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN))){
 				throw new TimeConflictException("!!ERROR!! Less than 24hours before Session. Only Admins can make changes now");
 			}
 		}
-		
-		appointmentToEdit.setSession(newSession);
-		
+		Integer currentSessionId = appointmentToEdit.getSession().getId();
 		if(appointmentToEdit.getStatus().equals(Status.CONFIRMED)) {
+			pickNewConfirmedAppointment(currentSessionId);//pick a new confirmed for this session
+			
 			appointmentToEdit.setStatus(Status.PENDING);
-			try {
-				pickNewConfirmedAppointment(appointmentToEdit.getSession().getId());//pick a new confirmed for this session
-			} catch (Exception e) { e.printStackTrace();}
 		}
 		
-		appointmentRepository.save(appointmentToEdit);
-		
 		emailService.sendEmail(appointmentToEdit.getClient().getEmail(), "Appointment Edited", "Appointment Edited");
-		emailService.sendEmail(appointmentToEdit.getSession().getProvider().getEmail(), "Appointment Edited", "Appointment Edited");
+		emailService.sendEmail(appointmentToEdit.getSession().getProvider().getEmail(),  "Appointment Edited", "Appointment Changed to Another Session");
+		emailService.sendEmail(newSession.getProvider().getEmail(), "Appointment Edited", "New Appointment Added");
+		
+		appointmentToEdit.setSession(newSession);
+		appointmentRepository.save(appointmentToEdit);
 		return appointmentToEdit;
 	}
 		
