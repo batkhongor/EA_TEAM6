@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -32,17 +33,17 @@ public class ProviderController {
 
 //Get All appointments for a given session
     @GetMapping("/Appointments/{id}")
-    public  List<Appointment> findAllAppointmentsForASession(Integer SessionId) {
-        return providerServiceImpl.findAllAppointmentsForASession(SessionId);
+    public  List<Appointment> findAllAppointmentsForASession(@PathVariable(name="id") Integer SessionId, Authentication authentication) {
+        return providerServiceImpl.findAllAppointmentsForASession(SessionId, authentication);
     }
 
 
     //Get Confirmed Appointment for a given session
-    @GetMapping("/Appointment/{id}")
-    public Appointment findConfirmedAppointment(Integer SessionId)
+    @GetMapping("/Appointment/confirmed/{id}")
+    public Optional<Appointment> findConfirmedAppointment(@PathVariable(name="id")Integer SessionId, Authentication authentication)
     {
 
-        return providerServiceImpl.findConfirmedAppointment(SessionId);
+        return providerServiceImpl.findConfirmedAppointment(SessionId,  authentication);
 
     }
 

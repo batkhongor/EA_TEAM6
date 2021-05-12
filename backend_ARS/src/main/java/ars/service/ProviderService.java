@@ -2,13 +2,12 @@ package ars.service;
 
 import ars.domain.Appointment;
 import ars.domain.Person;
-import ars.domain.RoleType;
 import ars.domain.Session;
 import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public interface ProviderService {
 
@@ -22,7 +21,7 @@ public interface ProviderService {
     public default List<Appointment> findAllAppointmentsForASession(Integer SessionId) {
         throw new NotYetImplementedException();
     }
-    public default Appointment findConfirmedAppointment(Integer SessionId)
+    public default Optional<Appointment> findConfirmedAppointment(Integer SessionId)
     {
         throw new NotYetImplementedException();
 
