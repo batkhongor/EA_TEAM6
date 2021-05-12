@@ -2,7 +2,6 @@ package ars.repository;
 
 import java.util.List;
 
-import ars.domain.Person;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,8 +22,8 @@ public interface SessionRepository extends JpaRepository<Session, Integer> {
 	Page<Session> findFutureSessions(Pageable page);
 
 	@Query("from Session s where s.date >= current_date() and s.provider.id = :providerId")
-	List<Session> findFutureSessionsByProviderId( @Param("providerId") Integer providerId);
+	List<Session> findFutureSessionsByProviderId(@Param("providerId") Integer providerId);
 
 	@Query("from Session s where s.provider.id = :providerId")
-	List<Session> findSessionsByProviderId(@Param("providerId")Integer providerId);
+	List<Session> findSessionsByProviderId(@Param("providerId") Integer providerId);
 }
