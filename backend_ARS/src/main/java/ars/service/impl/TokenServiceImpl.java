@@ -40,4 +40,8 @@ public class TokenServiceImpl implements TokenService {
 	public Token updateToken(Token token) {
 		return tokenRepository.save(token);
 	}
+	
+	public List<Token> updateAllToken(List<Token> tokens) {
+		return tokenRepository.saveAll(tokens);
+	}
 }

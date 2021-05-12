@@ -37,6 +37,10 @@ public interface TokenService {
     public default Token updateToken(Token token) {
         throw new NotYetImplementedException();
     }
+    
+    public default  List<Token> updateAllToken(List<Token> tokens) {
+        throw new NotYetImplementedException();
+    }
 }
 
 
