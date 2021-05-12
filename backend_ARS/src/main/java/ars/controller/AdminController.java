@@ -112,7 +112,7 @@ public class AdminController {
 
 	@PutMapping("/sessions/{id}")
 	public Session updateSession(@PathVariable("id") Integer sessionId, @Valid @RequestBody SessionDTO sessionDto)
-			throws TimeConflictException, NotAllowedException {
+			throws TimeConflictException, NotAllowedException, NotFoundException {
 		Session entity = convertToEntity(sessionDto);
 		entity = sessionService.updateSession(sessionId, entity, sessionDto.getProviderEMail());
 		return entity;
