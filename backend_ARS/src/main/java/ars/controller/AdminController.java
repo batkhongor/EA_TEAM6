@@ -18,8 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import ars.domain.Person;
 import ars.domain.Session;
 import ars.dto.PersonDTO;
+import ars.dto.SessionDTO;
+import ars.exceptions.NotAllowedException;
+import ars.exceptions.NotFoundException;
+import ars.exceptions.TimeConflictException;
 import ars.service.AdminService;
 import ars.service.PersonService;
+import ars.service.SessionService;
 
 @RestController
 @RequestMapping("/admin")
@@ -30,6 +35,9 @@ public class AdminController {
 
 	@Autowired
 	private PersonService personService;
+
+	@Autowired
+	private SessionService sessionService;
 
 	@Autowired
 	private AdminService adminService;
@@ -72,30 +80,37 @@ public class AdminController {
 
 	@GetMapping(value = "/sessions")
 	public Page<Session> getSessionList(Pageable pageable) {
-		Page<Session> page = adminService.findAllSessions(pageable);
+		Page<Session> page = sessionService.findAll(pageable, false);
+		return page;
+	}
+
+	@GetMapping(value = "/sessions", params = "paged=true")
+	public Page<Session> getFutureSessionList(Pageable pageable) {
+		Page<Session> page = sessionService.findAll(pageable, true);
 		return page;
 	}
 
 	@GetMapping("/sessions/{id}")
-	public Session getSession(@PathVariable("id") Integer personId) {
-		Session entity = adminService.findSessionById(personId).get();
+	public Session getSession(@PathVariable("id") Integer personId) throws NotFoundException {
+		Session entity = sessionService.getSession(personId);
 		return entity;
 	}
 
 	@PostMapping("/sessions")
-	public Session createSession(@Valid @RequestBody Session personDto) {
-		Session entity = personDto;
-		entity = adminService.createSession(entity);
+	public Session createSession(@Valid @RequestBody SessionDTO sessionDto)
+			throws TimeConflictException, NotAllowedException {
+		Session entity = convertToEntity(sessionDto);
+		entity = sessionService.createSession(entity, sessionDto.getProviderEMail());
 		return entity;
 	}
 
-	@PutMapping("/sessions/{id}")
-	public Session updateSession(@PathVariable("id") Integer sessionId, @Valid @RequestBody Session sessionDto) {
-		adminService.findSessionById(sessionId).orElseThrow(RuntimeException::new);
-		Session entity = sessionDto;
-		entity = adminService.updateSession(entity);
-		return entity;
-	}
+//	@PutMapping("/sessions/{id}")
+//	public Session updateSession(@PathVariable("id") Integer sessionId, @Valid @RequestBody SessionDTO sessionDto) {
+//		adminService.findSessionById(sessionId).orElseThrow(RuntimeException::new);
+//		Session entity = sessionDto;
+//		entity = sessionService.updateSession(entity);
+//		return entity;
+//	}
 
 	@DeleteMapping("/sessions/{id}")
 	public void deleteSession(@PathVariable("id") Integer personId) {
@@ -113,6 +128,11 @@ public class AdminController {
 
 	private Person convertToEntity(PersonDTO pDto) {
 		Person entity = modelMapper.map(pDto, Person.class);
+		return entity;
+	}
+
+	private Session convertToEntity(SessionDTO pDto) {
+		Session entity = modelMapper.map(pDto, Session.class);
 		return entity;
 	}
 	/* </private methods> */
