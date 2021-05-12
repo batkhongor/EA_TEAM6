@@ -23,7 +23,8 @@ import lombok.ToString;
 public class SessionDTO {
 	private Integer id;
 
-	@Future
+//	@Future
+	@NotNull
 	private LocalDate date;
 
 	@NotNull
@@ -38,6 +39,6 @@ public class SessionDTO {
 	private String location;
 	
 	@NotNull
-	@Email
+//	@Email
 	private String providerEMail;
 }

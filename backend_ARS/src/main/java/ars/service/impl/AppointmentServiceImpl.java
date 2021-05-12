@@ -92,9 +92,12 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			}
 		}
 		if(toDelete.getStatus().equals(Status.CONFIRMED)) {
-				pickNewConfirmedAppointment(toDelete.getSession().getId());
+			toDelete.setStatus(Status.CANCELLED);
+			pickNewConfirmedAppointment(toDelete.getSession().getId());
+		} else {
+			toDelete.setStatus(Status.CANCELLED);
 		}
-		toDelete.setStatus(Status.CANCELLED);
+		
 		return toDelete;
 	}
 	@Override
@@ -126,12 +129,13 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		}
 		Integer currentSessionId = appointmentToEdit.getSession().getId();
 		if(appointmentToEdit.getStatus().equals(Status.CONFIRMED)) {
+			appointmentToEdit.setStatus(Status.CANCELLED);
 			pickNewConfirmedAppointment(currentSessionId);
-			
-			appointmentToEdit.setStatus(Status.PENDING);
 		}
 		
 		appointmentToEdit.setSession(newSession);
+		appointmentToEdit.setStatus(Status.PENDING);
+		
 		if(newSession.getAppointmentRequests().size()==1) {
 			appointmentToEdit.setStatus(Status.CONFIRMED);
 		}
@@ -141,19 +145,38 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		
 	
 	public void  pickNewConfirmedAppointment(Integer sessionId) throws NotAllowedException {
-		Session toEdit = sessionRepository.findById(sessionId).get();
+//		Session toEdit = sessionRepository.findById(sessionId).get();
+		List<Appointment> confirmedAppointmentList = 
+				appointmentRepository.findAppointmentsBySessionId(sessionId, Status.CONFIRMED);
 		
-		if(toEdit.getAppointmentRequests().stream().anyMatch(a->a.getStatus().equals(Status.CONFIRMED))) {
+		
+		if (confirmedAppointmentList.size() >= 1) 
 			throw new NotAllowedException("Session already has a confirmed appointment");
+		
+//		if(toEdit.getAppointmentRequests().stream().anyMatch(a->a.getStatus().equals(Status.CONFIRMED))) {
+//			throw new NotAllowedException("Session already has a confirmed appointment");
+//		}
+		
+		// repo.findPendingRequestsBySessionId -> List<Appointment>
+		List<Appointment> pendingAppointmentList = 
+				appointmentRepository.findAppointmentsBySessionId(sessionId, Status.PENDING);
+		
+		if (pendingAppointmentList.size() >= 1) {
+			Appointment toConfirm = pendingAppointmentList.get(0);
+			
+			toConfirm.setStatus(Status.CONFIRMED);
+			toConfirm.setConfirmedDate(LocalDate.now());
+			
+			appointmentRepository.save(toConfirm);
 		}
 		
-		Appointment toConfirm = toEdit.getAppointmentRequests().stream()
-									.filter(a->a.getStatus().equals(Status.PENDING))
-									.sorted(Comparator.comparing(Appointment::getCreatedDate).reversed()).findFirst().get();
-		toConfirm.setStatus(Status.CONFIRMED);
-		toConfirm.setConfirmedDate(LocalDate.now());
-
-		appointmentRepository.save(toConfirm);
+		
+//		Appointment toConfirm = appointmentRequests.stream()
+//									.filter(a->a.getStatus().equals(Status.PENDING))
+//									.sorted(Comparator.comparing(Appointment::getCreatedDate).reversed()).findFirst()
+//									.get();
+		
+		
 	}
 
 }
