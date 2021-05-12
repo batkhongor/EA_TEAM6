@@ -1,5 +1,7 @@
 package ars.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
@@ -71,7 +73,6 @@ public class AdminController {
 
 	@PutMapping("/persons/{id}")
 	public PersonDTO updatePerson(@PathVariable("id") Integer personId, @Valid @RequestBody PersonDTO personDto) {
-		personService.findById(personId).orElseThrow(RuntimeException::new);
 		Person entity = convertToEntity(personDto);
 		entity = personService.updatePerson(entity);
 		return convertToPersonDto(entity);
@@ -91,7 +92,7 @@ public class AdminController {
 		return page;
 	}
 
-	@GetMapping(value = "/sessions", params = "paged=true")
+	@GetMapping(value = "/sessions", params = "futureOnly=true")
 	public Page<Session> getFutureSessionList(Pageable pageable) {
 		Page<Session> page = sessionService.findAll(pageable, true);
 		return page;
