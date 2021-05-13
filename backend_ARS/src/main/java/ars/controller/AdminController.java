@@ -155,9 +155,9 @@ public class AdminController {
 	}
 
 	@DeleteMapping("/appointments/{id}")
-	public void deleteAppointment(@PathVariable("id") Integer appointmentId, Authentication authentication)
+	public Appointment deleteAppointment(@PathVariable("id") Integer appointmentId, Authentication authentication)
 			throws NotFoundException, NotAllowedException, TimeConflictException {
-		appointmentService.deleteAppointment(authentication.getName(), appointmentId);
+		return appointmentService.deleteAppointment(authentication.getName(), appointmentId);
 	}
 
 	/* </APPOINTMENT> */
