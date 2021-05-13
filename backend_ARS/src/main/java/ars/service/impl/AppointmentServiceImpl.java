@@ -2,8 +2,6 @@ package ars.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,19 +39,22 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 	}
 	
 	@Override
-	public Appointment createAppointment(String email,Integer sessionId) throws NotFoundException {
+	public Appointment createAppointment(String email,Integer sessionId) throws NotFoundException, TimeConflictException {
 		
 		Person client = personRepository.findByEmailOne(email);
 		
 		if(client==null) {
-			throw new NotFoundException("!!ERROR!! No person with this id");
-		}
+			throw new NotFoundException("!!ERROR!! No person with this id");}
 		
 		if(!client.getRoles().contains(RoleType.CUSTOMER)) { 
-			throw new NotFoundException("!!ERROR!! Only customers can create appointments");
-		}
+			throw new NotFoundException("!!ERROR!! Only customers can create appointments");}
 		
-		Session requestedSession = sessionRepository.findById(sessionId).orElseThrow(()->new NotFoundException("!!ERROR!! No session with this id"));
+		Session requestedSession = sessionRepository.findById(sessionId)
+									.orElseThrow(()->new NotFoundException("!!ERROR!! No session with this id"));
+		LocalDateTime requestedSessionDateTime = LocalDateTime.of(requestedSession.getDate(),requestedSession.getStartTime());
+		if(requestedSessionDateTime.isBefore(LocalDateTime.now())) {
+			throw new TimeConflictException("!!ERROR!! Can only create appointments for future sessions");
+		}
 	
 		Appointment newAppointment = new Appointment(LocalDate.now(), client, requestedSession);
 		
@@ -74,28 +75,28 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			throw new NotAllowedException("Only Admins and Clients can delete an appointment");
 		}
 		
-		Appointment toDelete = appointmentRepository.findById(appointmentId)
+		Appointment appointmentToDelete = appointmentRepository.findById(appointmentId)
 					.orElseThrow(()-> new NotFoundException("!!ERROR!! appointment with this id does not exist in the records"));
 
-		LocalDateTime appDateTime = LocalDateTime.of(toDelete.getSession().getDate() , toDelete.getSession().getStartTime());
+		LocalDateTime appDateTime = LocalDateTime.of(appointmentToDelete.getSession().getDate() , appointmentToDelete.getSession().getStartTime());
 		
 		if(appDateTime.isBefore(LocalDateTime.now())) {
 			throw new TimeConflictException("Only future appointments can be deleted/edited");
 		}
 	
-		if(LocalDateTime.now().isAfter(appDateTime.minusHours(24))) {
-			if(!personTryingToDelete.getRoles().contains(RoleType.ADMIN)){
-				throw new TimeConflictException("!!ERROR!! Only Admins can delete a an Appointment within 24hours of session");
-			}
-		}
-		if(toDelete.getStatus().equals(Status.CONFIRMED)) {
-			toDelete.setStatus(Status.CANCELLED);
-			pickNewConfirmedAppointment(toDelete.getSession().getId());
-		} else {
-			toDelete.setStatus(Status.CANCELLED);
+		if( LocalDateTime.now().isAfter(appDateTime.minusHours(48)) &&
+			!personTryingToDelete.getRoles().contains(RoleType.ADMIN) ){
+				throw new TimeConflictException("!!ERROR!! Only Admins can delete a an Appointment within 48hours of session");
 		}
 		
-		return toDelete;
+		if(appointmentToDelete.getStatus().equals(Status.CONFIRMED)) {
+			appointmentToDelete.setStatus(Status.CANCELLED);
+			pickNewConfirmedAppointment(appointmentToDelete.getSession().getId());
+		} else {
+			appointmentToDelete.setStatus(Status.CANCELLED);
+		}
+		
+		return appointmentToDelete;
 	}
 	@Override
 	public Appointment editAppointment(String personEmail, Integer appointmentId, Integer newSessionId) throws NotFoundException, NotAllowedException, TimeConflictException {
@@ -119,9 +120,9 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			throw new TimeConflictException("Only future appointments can be edited");
 		}
 	
-		if(LocalDateTime.now().isAfter(newSessionDateTime.minusHours(24))) {
+		if(LocalDateTime.now().isAfter(newSessionDateTime.minusHours(48))) {
 			if( !person.getRoles().contains(RoleType.ADMIN)){
-				throw new TimeConflictException("!!ERROR!! Less than 24hours before Session. Only Admins can make changes now");
+				throw new TimeConflictException("!!ERROR!! Less than 48hours before Session. Only Admins can make changes now");
 			}
 		}
 		Integer currentSessionId = appointmentToEdit.getSession().getId();

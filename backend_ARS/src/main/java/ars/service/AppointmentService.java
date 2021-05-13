@@ -8,7 +8,7 @@ import ars.exceptions.TimeConflictException;
 
 public interface AppointmentService {
 
-	Appointment createAppointment(String Email, Integer sessionId) throws NotFoundException;
+	Appointment createAppointment(String Email, Integer sessionId) throws NotFoundException, TimeConflictException;
 	
 	List<Appointment> findAllClientAppointments(String email);
 	
