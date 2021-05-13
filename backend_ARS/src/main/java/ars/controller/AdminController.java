@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ars.domain.Appointment;
@@ -58,12 +59,6 @@ public class AdminController {
 		return page.map(this::convertToPersonDto);
 	}
 
-	@GetMapping("/persons/{id}")
-	public PersonDTO getPerson(@PathVariable("id") Integer personId) {
-		Person entity = personService.findById(personId).get();
-		return convertToPersonDto(entity);
-	}
-
 	@PostMapping("/persons")
 	public PersonDTO createPerson(@Valid @RequestBody PersonDTO personDto) {
 		Person entity = convertToEntity(personDto);
@@ -99,8 +94,8 @@ public class AdminController {
 	}
 
 	@GetMapping("/sessions/{id}")
-	public Session getSession(@PathVariable("id") Integer personId) throws NotFoundException {
-		Session entity = sessionService.getSession(personId);
+	public Session getSession(@PathVariable("id") Integer sessionId) throws NotFoundException {
+		Session entity = sessionService.getSession(sessionId);
 		return entity;
 	}
 
@@ -129,7 +124,7 @@ public class AdminController {
 
 	/* <APPOINTMENT> */
 
-	@GetMapping(value = "/appointments")
+	@GetMapping(value = "/appointments", params = "paged=true")
 	public Page<Appointment> getAppointmentList(Pageable pageable) {
 		Page<Appointment> page = adminService.findAllAppointments(pageable);
 		return page;
@@ -156,11 +151,11 @@ public class AdminController {
 	}
 
 	@PutMapping("/appointments/{id}")
-	public Appointment updateAppointment(@PathVariable("id") Integer appointmentId,
+	public Appointment updateAppointment(Authentication authentication, @PathVariable("id") Integer appointmentId,
 			@Valid @RequestBody AppointmentDTO appointmentDto)
 			throws TimeConflictException, NotAllowedException, NotFoundException {
 
-		Appointment entity = appointmentService.editAppointment(appointmentDto.getClientEMail(), appointmentId,
+		Appointment entity = appointmentService.editAppointment(authentication.getName(), appointmentId,
 				appointmentDto.getSessionId());
 		return entity;
 	}
@@ -176,7 +171,7 @@ public class AdminController {
 	/* <private methods> */
 	private PersonDTO convertToPersonDto(Person person) {
 		PersonDTO pDto = modelMapper.map(person, PersonDTO.class);
-		pDto.setPassword("");
+		pDto.setPassword(null);
 		return pDto;
 	}
 

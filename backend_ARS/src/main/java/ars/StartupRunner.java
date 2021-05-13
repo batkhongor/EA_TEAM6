@@ -32,7 +32,6 @@ public class StartupRunner implements CommandLineRunner {
 	@Autowired
 	private SessionRepository sessionRepository;
 
-
 	@Autowired
 	private EmailService emailService;
 
@@ -47,7 +46,7 @@ public class StartupRunner implements CommandLineRunner {
 		roleTypes.add(RoleType.ADMIN);
 		roleTypes.add(RoleType.CUSTOMER);
 
-		Person person1 = new Person("John", "Carter", "john", "john", roleTypes);
+		Person person1 = new Person("John", "Carter", "john@mail.com", "john", roleTypes);
 		personServiceImpl.createPerson(person1);
 		System.out.println(person1.getRoles().toString());
 
@@ -71,26 +70,17 @@ public class StartupRunner implements CommandLineRunner {
 
 		personServiceImpl.createPerson(customer1);
 
-		//-------------ADDITIONAL PROVIDERS FOR TESTING
-		Set<RoleType> roleTypes1=new HashSet<>();
-		roleTypes1.add( RoleType.PROVIDER);
+		// -------------ADDITIONAL PROVIDERS FOR TESTING
+		Set<RoleType> roleTypes1 = new HashSet<>();
+		roleTypes1.add(RoleType.PROVIDER);
 
-		//Person person2= new Person("Bruke", "Tadege", "brukeabebe2@gmail.com", "bruke", roleTypes1);
-		Person person3= new Person("mike", "mike", "mike@gmail.com", "mike", roleTypes1);
+		// Person person2= new Person("Bruke", "Tadege", "brukeabebe2@gmail.com",
+		// "bruke", roleTypes1);
+		Person person3 = new Person("mike", "mike", "mike@gmail.com", "mike", roleTypes1);
 
-		//personServiceImpl.createPerson(person2);
+		// personServiceImpl.createPerson(person2);
 		personServiceImpl.createPerson(person3);
 		emailService.sendEmail("brukeabebe2@gmail.com", "test", "Test");
-    }
-
-
-
-
-
-
-
-
-
-
+	}
 
 }
