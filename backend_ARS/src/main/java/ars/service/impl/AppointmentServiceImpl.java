@@ -51,7 +51,9 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		
 		Session requestedSession = sessionRepository.findById(sessionId)
 									.orElseThrow(()->new NotFoundException("!!ERROR!! No session with this id"));
+		
 		LocalDateTime requestedSessionDateTime = LocalDateTime.of(requestedSession.getDate(),requestedSession.getStartTime());
+		
 		if(requestedSessionDateTime.isBefore(LocalDateTime.now())) {
 			throw new TimeConflictException("!!ERROR!! Can only create appointments for future sessions");
 		}
@@ -91,6 +93,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		
 		if(appointmentToDelete.getStatus().equals(Status.CONFIRMED)) {
 			appointmentToDelete.setStatus(Status.CANCELLED);
+			appointmentToDelete.setConfirmedDate(null);
 			pickNewConfirmedAppointment(appointmentToDelete.getSession().getId());
 		} else {
 			appointmentToDelete.setStatus(Status.CANCELLED);
@@ -128,6 +131,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		Integer currentSessionId = appointmentToEdit.getSession().getId();
 		if(appointmentToEdit.getStatus().equals(Status.CONFIRMED)) {
 			appointmentToEdit.setStatus(Status.CANCELLED);
+			appointmentToEdit.setConfirmedDate(null);
 			pickNewConfirmedAppointment(currentSessionId);
 		}
 		
