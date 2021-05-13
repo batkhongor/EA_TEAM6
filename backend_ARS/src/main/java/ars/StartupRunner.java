@@ -1,17 +1,17 @@
 package ars;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Properties;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +19,8 @@ import ars.domain.Person;
 import ars.domain.RoleType;
 import ars.domain.Session;
 import ars.repository.SessionRepository;
-import ars.service.PersonService;
-
 import ars.service.EmailService;
+import ars.service.PersonService;
 
 @Component
 public class StartupRunner implements CommandLineRunner {
@@ -39,48 +38,47 @@ public class StartupRunner implements CommandLineRunner {
 	@Transactional
 	public void run(String... args) throws Exception {
 
-		// List<List<Integer>> result=new ArrayList<>();
-
 		// ------------ ADMIN ------------
-		Set<RoleType> roleTypes = new HashSet<>();
-		roleTypes.add(RoleType.ADMIN);
-		roleTypes.add(RoleType.CUSTOMER);
-
-		Person person1 = new Person("John", "Carter", "john@mail.com", "john", roleTypes);
+		Person person1 = new Person("John", "Carter", "john@mail.com", "john", new HashSet<>());
 		personServiceImpl.createPerson(person1);
-		System.out.println(person1.getRoles().toString());
-
-		// ------------ PROVIDER ------------
+		person1.addRole(RoleType.ADMIN);
+		person1.addRole(RoleType.CUSTOMER);
+		
+		// ------------ PROVIDERS ------------
 		Person provider1 = new Person("Provider", "Mr", "brukeabebe2@gmail.com", "john", new HashSet<>());
 		provider1.addRole(RoleType.PROVIDER);
 		personServiceImpl.createPerson(provider1);
+		
+		Person provider2 = new Person("Provider2", "Mr", "boazturya@gmail.com", "boaz", new HashSet<>());
+		provider2.addRole(RoleType.PROVIDER);
+		provider2.addRole(RoleType.CUSTOMER);
+		personServiceImpl.createPerson(provider2);
+		
+		Person provider3 = new Person("mike", "mike", "mike@gmail.com", "mike", new HashSet<>());
+		provider3.addRole(RoleType.PROVIDER);
+		personServiceImpl.createPerson(provider3);
+
+		List<Person> providersList = new ArrayList<>();
+		providersList.addAll(Arrays.asList(provider1,provider2,provider3));
+
 
 		LocalDate today = LocalDate.now();
 
-		// ------------ RANDOM SESSIONS ------------
+		// ------------ RANDOM SESSIONS ------------// Assigning providers to sessions by picking them randomly from the list
 		for (int time = 16; time < 24; time++) {
+			int index =(int)(Math.random()*providersList.size());
 			Session session1 = new Session(today.plus(time, ChronoUnit.DAYS), LocalTime.of(time, 0), 30, "Iowa",
-					provider1);
+					providersList.get(index));
 			sessionRepository.save(session1);
 		}
 
 		// ------------ CUSTOMER ------------
 		Person customer1 = new Person("Customer", "Mr", "cs544eateam6@gmail.com", "john", new HashSet<>());
 		customer1.addRole(RoleType.CUSTOMER);
-
 		personServiceImpl.createPerson(customer1);
 
-		// -------------ADDITIONAL PROVIDERS FOR TESTING
-		Set<RoleType> roleTypes1 = new HashSet<>();
-		roleTypes1.add(RoleType.PROVIDER);
-
-		// Person person2= new Person("Bruke", "Tadege", "brukeabebe2@gmail.com",
-		// "bruke", roleTypes1);
-		Person person3 = new Person("mike", "mike", "mike@gmail.com", "mike", roleTypes1);
-
-		// personServiceImpl.createPerson(person2);
-		personServiceImpl.createPerson(person3);
-		emailService.sendEmail("brukeabebe2@gmail.com", "test", "Test");
+		// -------------Sending Startup Email-----------
+				emailService.sendEmail("brukeabebe2@gmail.com", "APPLICATION STARTING", "Started on "+LocalDateTime.now());
 	}
 
 }
