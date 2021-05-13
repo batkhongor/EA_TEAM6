@@ -1,6 +1,8 @@
 package ars.service.impl;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import ars.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,30 +61,59 @@ public class SessionServiceImpl implements SessionService {
 	@Override
 	public Session createSession(Session session, String providerEMail)
 			throws TimeConflictException, NotAllowedException {
-		Person person = personRepository.findByEmailOne(providerEMail);
+
+		Person person = (Person) personRepository.findByEmailOne(providerEMail);
 
 		if (!person.hasRole(RoleType.PROVIDER)) {
 			throw new NotAllowedException("Not allowed to create a session");
 		}
-		session.setProvider(person);
+
+		if (person.hasRole(RoleType.ADMIN)) {
+
+			Integer providerId= session.getProvider().getId();
+			List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(providerId);
+			List<Session> conflictingSession=futureSession.stream().
+					filter(session1->session1.getDate()==session.getDate() &&
+					session1.getStartTime()==session.getStartTime()).collect(Collectors.toList());
 
 
+			if(conflictingSession==null)
+			{
+				return sessionRepository.save(session);
+			}
 
-		if(sessionRepository.findFutureSessions().stream()
-				.filter(session1-> session1.getProvider()== session.getProvider()&&
-						session1.getDate() ==session.getDate() &&
-						session1.getStartTime()==session.getStartTime()).findAny()!=null)
-		{
-				throw new TimeConflictException("time is already occupied by another session");
+			else
+			{
+				throw new TimeConflictException("Session Time already occupied");
+			}
 		}
-       /* else if(sessionRepository.findFutureSessions().stream()
-				.filter(session1-> session1.getProvider()== session.getProvider()&&
-						session1.getDate() ==session.getDate() &&
-						(session1.getStartTime()+duration)==session.getStartTime()).findAny()!=null)*/
+
+		else{
+
+			session.setProvider(person);
+
+			List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(person.getId());
+			List<Session> conflictingSession=futureSession.stream().filter(session1->session1.getDate() ==session.getDate() &&
+				session1.getStartTime()==session.getStartTime()).collect(Collectors.toList());
+
+				if(conflictingSession==null)
+			{
+				return sessionRepository.save(session);
+			}
+
+				else
+				{
+					throw new TimeConflictException("Session Time already occupied");
+				}
 
 
-		return sessionRepository.save(session);
+		}
+
+
+
+
 	}
+
 
 	@Override
 	public Session updateSession(Integer sessionId, Session session, String providerEMail)
