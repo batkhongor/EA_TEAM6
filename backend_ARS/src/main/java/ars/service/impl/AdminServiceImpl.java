@@ -18,5 +18,6 @@ public class AdminServiceImpl implements AdminService {
 	public Page<Appointment> findAllAppointments(Pageable page) {
 		return appointmentRepository.findAll(page);
 	}
+	
 
 }
