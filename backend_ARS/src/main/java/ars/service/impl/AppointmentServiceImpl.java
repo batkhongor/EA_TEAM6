@@ -113,7 +113,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 
 		Person person = personRepository.findByEmailOne(personEmail);
 				
-		if(person.getRoles().contains(RoleType.CUSTOMER)) {
+		if(person.getRoles().contains(RoleType.CUSTOMER) && !person.getRoles().contains(RoleType.ADMIN)) {
 			if(!appointmentToEdit.getClient().getEmail().equals(personEmail)) {
 				throw new NotAllowedException("!!ERROR!! Client can only edit own appointment");
 			}
