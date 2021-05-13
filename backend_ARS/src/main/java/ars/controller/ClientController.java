@@ -13,39 +13,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ars.domain.Appointment;
-import ars.domain.Person;
 import ars.domain.Session;
-import ars.service.ClientService;
+import ars.exceptions.NotAllowedException;
+import ars.exceptions.NotFoundException;
+import ars.exceptions.TimeConflictException;
+import ars.service.AppointmentService;
+import ars.service.SessionService;
 
 @RestController
 @RequestMapping("/client")
 public class ClientController {
-	@Autowired
-	private ClientService clientService;
 	
-	//get all providers
-    @GetMapping
-    public List<Person> findAllClients() {
-        return clientService.findAllClients();
-    }
+	@Autowired
+	private AppointmentService appointmentService;
+	
+	@Autowired
+	private SessionService sessionService;
+	
     
     // ------------------- SESSION CRUD ----------------------
 	@GetMapping("/sessions")
-	private List<Session> findAllSessions() {
-		return clientService.findAllSessions();
+	private List<Session> findFutureSessions() {
+		return sessionService.findAll(true);
 	}
 
 	@GetMapping("/appointments")
 	private List<Appointment> findAppointments(Authentication authentication) {
-		return clientService.findAllClientAppointments(authentication.getName());
+		return appointmentService.findAllClientAppointments(authentication.getName());
 	}
 	
 	@PostMapping("/sessions/{session_id}/appointments")
-	private String createAppointment(
+	private Appointment createAppointment(
 			Authentication authentication, 
-			@PathVariable(name = "session_id") Integer sessionId) {
-		
-		return clientService.addNewAppointment(authentication.getName(), sessionId);
+			@PathVariable(name = "session_id") Integer sessionId) throws NotFoundException, TimeConflictException {
+		return appointmentService.createAppointment(authentication.getName(), sessionId);
 	}
 	
 	@GetMapping("/sessions/{session_id}/appointments")
@@ -56,20 +57,20 @@ public class ClientController {
 	}
 	
 	@PutMapping("/sessions/{session_id}/appointments/{appointment_id}")
-	private String updateAppointment(
+	private Appointment updateAppointment(
 			Authentication authentication, 
 			@PathVariable(name = "session_id") Integer session_id,
-			@PathVariable(name = "appointment_id") Integer appointmentId) {
+			@PathVariable(name = "appointment_id") Integer appointmentId) throws NotFoundException, NotAllowedException, TimeConflictException {
 		
-		return clientService.editAppointment(authentication.getName(), appointmentId, session_id);
+		return appointmentService.editAppointment(authentication.getName(), appointmentId, session_id);
 	}
 	
 	
 	@DeleteMapping("/appointments/{appointment_id}")
-	private String updateAppointment(
+	private Appointment deleteAppointment(
 			Authentication authentication,
-			@PathVariable(name = "appointment_id") Integer appointmentId) {
+			@PathVariable(name = "appointment_id") Integer appointmentId) throws NotFoundException, NotAllowedException, TimeConflictException {
 		
-		return clientService.deleteAppointment(authentication.getName(), appointmentId);
+		return appointmentService.deleteAppointment(authentication.getName(), appointmentId);
 	}
 }

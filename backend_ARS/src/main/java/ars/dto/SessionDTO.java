@@ -1,47 +1,44 @@
 package ars.dto;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import javax.persistence.Entity;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import ars.domain.RoleType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-public class PersonDTO {
-
+public class SessionDTO {
 	private Integer id;
 
+//	@Future
 	@NotNull
-	@Length(max = 50)
-	private String firstname;
-	
-	@NotNull
-	@Length(max = 50)
-	private String lastname;
+	private LocalDate date;
 
 	@NotNull
-	@Email
-	@Length(max = 100)
-	private String email;
+	private LocalTime startTime;
+
+	@NotNull
+	@Min(value = 1)
+	private int duration; // in minutes
+
+	@Length(max = 200)
+	@NotNull
+	private String location;
 	
 	@NotNull
-	@Length(max = 100)
-	private String password;
-	
-	private Set<RoleType> roles = new HashSet<>();
+//	@Email
+	private String providerEMail;
 }

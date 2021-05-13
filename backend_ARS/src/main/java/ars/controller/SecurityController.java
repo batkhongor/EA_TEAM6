@@ -1,5 +1,7 @@
 package ars.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +18,8 @@ import ars.domain.AuthenticationRequest;
 import ars.domain.AuthenticationResponse;
 import ars.domain.Person;
 import ars.domain.Token;
+import ars.service.PersonService;
+import ars.service.TokenService;
 import ars.service.impl.PersonServiceImpl;
 import ars.service.impl.TokenServiceImpl;
 import ars.service.impl.UserDetailServiceImpl;
@@ -46,13 +50,34 @@ public class SecurityController {
 		// invalidate token on database when user logout successfully
 		
 		String jwt_token=SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-		Token token=tokenServiceImpl.findById(jwt_token).orElse(null);
+		Token token=tokenServiceImpl.findTokenById(jwt_token).get();
 		token.setValid();
 		
 		tokenServiceImpl.updateToken(token);
-		
+		SecurityContextHolder.getContext().setAuthentication(null);
 		
 		return ResponseEntity.ok("logged out");
+	}
+	
+	@RequestMapping(value ="/logout/{personId}", method = RequestMethod.POST)
+	public ResponseEntity<?> logoutAll() {
+		// logout from all devices that user logged in
+		// invalidate all token related to user on database when user logout successfully
+		
+		String jwt_token=SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+		String email=SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		Integer personId=personServiceImpl.findByEmail(email).get().getId();
+		
+		List<Token> tokens=tokenServiceImpl.findAllTokensByPerson(personId);
+		
+		for(Token token : tokens) {
+			token.setValid();
+		}
+		tokenServiceImpl.updateAllToken(tokens);
+		SecurityContextHolder.getContext().setAuthentication(null);
+		
+		return ResponseEntity.ok("logged out from all devices");
 	}
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)

@@ -2,11 +2,13 @@ package ars.service;
 
 import java.util.List;
 
+import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import ars.domain.Session;
 import ars.exceptions.NotAllowedException;
+import ars.exceptions.NotFoundException;
 import ars.exceptions.TimeConflictException;
 
 public interface SessionService {
@@ -34,37 +36,62 @@ public interface SessionService {
 	 * @return
 	 */
 	List<Session> findAllByEmail(String email, boolean futureOnly);
-	
+
+	/**
+	 * Gets single session
+	 * 
+	 * @param sessionId
+	 * @return
+	 */
+
+	List<Session> findSessionForProvider(Integer ProviderId, String email) throws NotFoundException, NotAllowedException;
+
+
+	default Session getSession(Integer sessionId) throws NotFoundException {
+		throw new NotYetImplementedException();
+	}
+
 	/**
 	 * Creates a Session for the person/provider. if the person is not a Provider
 	 * then throws an NotAllowedException if session time conflicts with other
 	 * session then throws an TimeConflictException
 	 * 
 	 * @param session
-	 * @param providerId
+	 * @param providerEMail
 	 * @return
 	 */
-	Session createSession(Session session, Integer providerId) throws TimeConflictException, NotAllowedException;
-	
+	Session createSession(Session session, String providerEMail) throws TimeConflictException, NotAllowedException;
+
 	/**
 	 * Update a Session for the person/provider. if the person is not a Provider
 	 * then throws an NotAllowedException if session time conflicts with other
 	 * session then throws an TimeConflictException
 	 * 
 	 * @param session
-	 * @param providerId
+	 * @param providerEMail
 	 * @return
 	 */
-	Session updateSession(Integer sessionId, Session session, Integer providerId) throws TimeConflictException, NotAllowedException;
+	Session updateSession(Integer sessionId, Session session, String providerEMail)
+			throws TimeConflictException, NotAllowedException, NotFoundException;
 
 	/**
-	 * Deletes a Session for the person/provider. if the person is not a Provider
-	 * then throws an NotAllowedException if session time conflicts with other
+	 * Deletes a Session of the given provider. if the person is not a Provider then
+	 * throws an NotAllowedException if session time conflicts with other
+	 * 
+	 * @param session
+	 * @param providerEMail
+	 * @return
+	 */
+	void deleteSession(Integer sessionId, String providerEMail) throws NotAllowedException, NotFoundException;
+
+	/**
+	 * Deletes a Session. if the person is not a Provider then throws an
+	 * NotAllowedException if session time conflicts with other
 	 * 
 	 * @param session
 	 * @param providerId
 	 * @return
 	 */
-	void deleteSession(Integer sessionId, Integer providerId) throws NotAllowedException;
-	
+	void deleteSession(Integer sessionId);
+
 }

@@ -1,6 +1,10 @@
 package ars.service;
 
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import ars.domain.Appointment;
 import ars.exceptions.NotAllowedException;
 import ars.exceptions.NotFoundException;
@@ -8,7 +12,7 @@ import ars.exceptions.TimeConflictException;
 
 public interface AppointmentService {
 
-	Appointment createAppointment(String Email, Integer sessionId) throws NotFoundException;
+	Appointment createAppointment(String Email, Integer sessionId) throws NotFoundException, TimeConflictException;
 	
 	List<Appointment> findAllClientAppointments(String email);
 	
@@ -16,14 +20,7 @@ public interface AppointmentService {
 	
 	Appointment editAppointment(String email, Integer appointmentId, Integer newSessionId) throws NotFoundException, NotAllowedException, TimeConflictException;
 	
-<<<<<<< Updated upstream
-	void pickNewConfirmedAppointment(Integer sessionId); 
-	
-	
-	
-=======
 	Page<Appointment> findAllAppointments(Pageable pageable);
 	
 	List<Appointment> findAllAppointmentsBySessionId(Integer sessionId);
->>>>>>> Stashed changes
 }

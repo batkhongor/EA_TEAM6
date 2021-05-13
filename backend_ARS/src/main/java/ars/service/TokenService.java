@@ -10,6 +10,7 @@ import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public interface TokenService {
@@ -24,7 +25,7 @@ public interface TokenService {
         throw new NotYetImplementedException();
     }
     
-    public default Appointment findTokenById(String token)
+    public default Optional<Token> findTokenById(String token)
     {
         throw new NotYetImplementedException();
     }
@@ -35,6 +36,10 @@ public interface TokenService {
 
 
     public default Token updateToken(Token token) {
+        throw new NotYetImplementedException();
+    }
+    
+    public default  List<Token> updateAllToken(List<Token> tokens) {
         throw new NotYetImplementedException();
     }
 }

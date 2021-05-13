@@ -3,13 +3,13 @@ package ars.service.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ars.domain.Appointment;
 import ars.domain.Person;
@@ -23,11 +23,10 @@ import ars.repository.AppointmentRepository;
 import ars.repository.PersonRepository;
 import ars.repository.SessionRepository;
 import ars.service.AppointmentService;
-import ars.service.ClientService;
 import ars.service.EmailService;
 
 //SERVICE
-@Service
+@Service @Transactional
 public class AppointmentServiceImpl implements AppointmentService	 {
 	@Autowired
 	AppointmentRepository appointmentRepository;
@@ -38,67 +37,74 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 	@Autowired
 	EmailService emailService;
 	
-	
-	
 	@Override
 	public List<Appointment> findAllClientAppointments(String email){
-		return appointmentRepository.findAll().stream().filter(a->a.getClient().getEmail().equals(email)).collect(Collectors.toList());
+		return appointmentRepository.findAllByClientEmail(email);
 	}
 	
 	@Override
-	public Appointment createAppointment(String email,Integer sessionId) throws NotFoundException {
+	public Appointment createAppointment(String email,Integer sessionId) throws NotFoundException, TimeConflictException {
 		
-		Person client = personRepository.findAll().stream().filter(p->p.getEmail().equals(email)).findFirst()
-																	.orElseThrow(()->new NotFoundException("!!ERROR!! No person with this id"));
+		Person client = personRepository.findByEmailOne(email);
 		
-		if(	client.getRoles().stream().noneMatch(r->r.equals(RoleType.CUSTOMER))) { 
-			throw new NotFoundException("!!ERROR!! Only customers can create appointments");
+		if(client==null) { throw new NotFoundException("!!ERROR!! No person with this id");}
+		
+		if(!client.getRoles().contains(RoleType.CUSTOMER)) { 
+			throw new NotFoundException("!!ERROR!! Only customers can create appointments");}
+		
+		Session requestedSession = sessionRepository.findById(sessionId)
+									.orElseThrow(()->new NotFoundException("!!ERROR!! No session with this id"));
+		
+		LocalDateTime requestedSessionDateTime = LocalDateTime.of(requestedSession.getDate(),
+																	requestedSession.getStartTime());
+		
+		if(requestedSessionDateTime.isBefore(LocalDateTime.now())) {
+			throw new TimeConflictException("!!ERROR!! Can only create appointments for future sessions");
 		}
-		
-		Session requestedSession = sessionRepository.findById(sessionId).orElseThrow(()->new NotFoundException("!!ERROR!! No session with this id"));
 	
-		LocalDate currentDate = LocalDate.now();
-		Appointment newAppointment = new Appointment(currentDate, client, requestedSession);
+		Appointment newAppointment = new Appointment(LocalDate.now(), LocalTime.now(),client, requestedSession);
 		
 		if(requestedSession.getAppointmentRequests().isEmpty()) {
 			newAppointment.setStatus(Status.CONFIRMED);
+			newAppointment.setConfirmedDateTime(LocalDateTime.now()); 
 		}
 		appointmentRepository.save(newAppointment);
 		return newAppointment;
-		
 	}
+	
 	@Override
 	public Appointment deleteAppointment(String email , Integer appointmentId) throws NotFoundException, NotAllowedException, TimeConflictException {
+		
 		Person personTryingToDelete = personRepository.findByEmailOne(email);
-		if(personTryingToDelete==null) {
-			throw new NotFoundException("!!ERROR!! No person with this id");
-		}
+		if(personTryingToDelete==null)	throw new NotFoundException("!!ERROR!! No person with this id");
+		
 		if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN)||r.equals(RoleType.CUSTOMER))) {
 			throw new NotAllowedException("Only Admins and Clients can delete an appointment");
 		}
 		
-		Appointment toDelete = appointmentRepository.findById(appointmentId)
+		Appointment appointmentToDelete = appointmentRepository.findById(appointmentId)
 					.orElseThrow(()-> new NotFoundException("!!ERROR!! appointment with this id does not exist in the records"));
 
-		LocalDate appDate = toDelete.getSession().getDate();
-		LocalTime appTime = LocalTime.of(toDelete.getSession().getStartTime(),0);
-		LocalDateTime appDateTime = LocalDateTime.of(appDate,appTime);
+		LocalDateTime appDateTime = LocalDateTime.of(appointmentToDelete.getSession().getDate() , appointmentToDelete.getSession().getStartTime());
+		
+		if(appDateTime.isBefore(LocalDateTime.now())) {
+			throw new TimeConflictException("Only future appointments can be deleted/edited");
+		}
 	
-		if(LocalDateTime.now().isAfter(appDateTime.minusHours(24))) {
-			if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN))){
-				throw new TimeConflictException("!!ERROR!! Only Admins can delete a an Appointment within 24hours of session");
-			}
+		if( LocalDateTime.now().isAfter(appDateTime.minusHours(48)) &&
+					!personTryingToDelete.getRoles().contains(RoleType.ADMIN) ){
+				throw new TimeConflictException("!!ERROR!! Only Admins can delete a an Appointment within 48hours of session");
 		}
-		if(toDelete.getStatus().equals(Status.CONFIRMED)) {
-			toDelete.setStatus(Status.CANCELLED);
-			try {
-				pickNewConfirmedAppointment(toDelete.getSession().getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		
+		if(appointmentToDelete.getStatus().equals(Status.CONFIRMED)) {
+			appointmentToDelete.setStatus(Status.CANCELLED);
+			appointmentToDelete.setConfirmedDateTime(null);
+			pickNewConfirmedAppointment(appointmentToDelete.getSession().getId());
+		} else {
+			appointmentToDelete.setStatus(Status.CANCELLED);
 		}
-		appointmentRepository.delete(toDelete);
-		return toDelete;
+		
+		return appointmentToDelete;
 	}
 	@Override
 	public Appointment editAppointment(String personEmail, Integer appointmentId, Integer newSessionId) throws NotFoundException, NotAllowedException, TimeConflictException {
@@ -116,49 +122,71 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		Session newSession = sessionRepository.findById(newSessionId)
 									.orElseThrow(()->new NotFoundException("!!ERROR!! No Session with this id"));
 		
-		LocalDateTime newSessionDateTime = LocalDateTime.of(newSession.getDate(), LocalTime.of(newSession.getStartTime(),0));
+		LocalDateTime newSessionDateTime = LocalDateTime.of(newSession.getDate(), newSession.getStartTime());
+		
+		if(newSessionDateTime.isBefore(LocalDateTime.now())) {
+			throw new TimeConflictException("Only future appointments can be edited");
+		}
 	
-		if(LocalDateTime.now().isAfter(newSessionDateTime.minusHours(24))) {
-			if(person.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN))){
-				throw new TimeConflictException("!!ERROR!! Less than 24hours before Session. Only Admins can make changes now");
+		if(LocalDateTime.now().isAfter(newSessionDateTime.minusHours(48))) {
+			if( !person.getRoles().contains(RoleType.ADMIN)){
+				throw new TimeConflictException("!!ERROR!! Less than 48hours before Session. Only Admins can make changes now");
 			}
+		}
+		Integer currentSessionId = appointmentToEdit.getSession().getId();
+		if(appointmentToEdit.getStatus().equals(Status.CONFIRMED)) {
+			appointmentToEdit.setStatus(Status.CANCELLED);
+			appointmentToEdit.setConfirmedDateTime(null); 
+			pickNewConfirmedAppointment(currentSessionId);
 		}
 		
 		appointmentToEdit.setSession(newSession);
+		appointmentToEdit.setStatus(Status.PENDING);
 		
-		if(appointmentToEdit.getStatus().equals(Status.CONFIRMED)) {
-			appointmentToEdit.setStatus(Status.PENDING);
-			try {
-				pickNewConfirmedAppointment(appointmentToEdit.getSession().getId());//pick a new confirmed for this session
-			} catch (Exception e) { e.printStackTrace();}
+		if(appointmentRepository.findAppointmentsBySessionId(newSessionId, Status.CONFIRMED).isEmpty()) {
+			pickNewConfirmedAppointment(newSessionId);			
 		}
-		
+		if(newSession.getAppointmentRequests().size()==1) {
+			appointmentToEdit.setStatus(Status.CONFIRMED);
+			appointmentToEdit.setConfirmedDateTime(LocalDateTime.now());
+		}
 		appointmentRepository.save(appointmentToEdit);
-		
-		emailService.sendEmail(appointmentToEdit.getClient().getEmail(), "Appointment Edited", "Appointment Edited");
-		emailService.sendEmail(appointmentToEdit.getSession().getProvider().getEmail(), "Appointment Edited", "Appointment Edited");
 		return appointmentToEdit;
 	}
 		
-	@Override
-	public void  pickNewConfirmedAppointment(Integer sessionId) {
-		Session toEdit = sessionRepository.findById(sessionId).get();
-		
-		Appointment toConfirm = toEdit.getAppointmentRequests().stream()
-									.filter(a->a.getStatus().equals(Status.PENDING))
-									.sorted(Comparator.comparing(Appointment::getCreatedDate).reversed()).findFirst().get();
-		toConfirm.setStatus(Status.CONFIRMED);
-		toConfirm.setConfirmedDate(LocalDate.now());
+	
+	public void  pickNewConfirmedAppointment(Integer sessionId) throws NotAllowedException {
 
-<<<<<<< Updated upstream
 		appointmentRepository.save(toConfirm);
+		List<Appointment> confirmedAppointmentList = 
+				appointmentRepository.findAppointmentsBySessionId(sessionId, Status.CONFIRMED);
+		
+		if (confirmedAppointmentList.size() >= 1) throw new NotAllowedException("Session already has a confirmed appointment");
+		
+		List<Appointment> pendingAppointmentList = 
+				appointmentRepository.findAppointmentsBySessionId(sessionId, Status.PENDING);
+		
+		if (pendingAppointmentList.size() >= 1) {
+			Appointment toConfirm = pendingAppointmentList.get(0);
+			
+			toConfirm.setStatus(Status.CONFIRMED);
+			toConfirm.setConfirmedDateTime(LocalDateTime.now());
+			
+			appointmentRepository.save(toConfirm);
+		}
+
 	}
-=======
+
 	@Override
 	public List<Appointment> findAllAppointmentsBySessionId(Integer sessionId) {
 		return appointmentRepository.findAllAppointmentsBySessionId(sessionId);
 	}
 
->>>>>>> Stashed changes
+	@Override
+	public Page<Appointment> findAllAppointments(Pageable pageable) {
+		return appointmentRepository.findAll(pageable);
+	}
 
+
+	
 }
