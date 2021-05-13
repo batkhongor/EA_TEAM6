@@ -16,7 +16,7 @@ import ars.domain.Session;
 @Repository
 @Transactional
 public interface SessionRepository extends JpaRepository<Session, Integer> {
-	@Query("from Session s where s.date >= CURRENT_DATE")
+	@Query("from Session s where s.date >= CURRENT_DATE()")
 	List<Session> findFutureSessions();
 
 	@Query("from Session s where s.date >= current_date()")
