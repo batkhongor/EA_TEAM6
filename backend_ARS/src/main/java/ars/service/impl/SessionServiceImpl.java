@@ -87,24 +87,23 @@ public class SessionServiceImpl implements SessionService {
 	}
 
 	@Override
-	public Session createSession(Session session, String providerEMail)
+	public Session createSession(Session session, String providerEmail,String personEMail)
 			throws TimeConflictException, NotAllowedException {
 
-		Person person = (Person) personRepository.findByEmailOne(providerEMail);
+		Person person = personRepository.findByEmailOne(personEMail);
 
-	/*	if (!person.hasRole(RoleType.PROVIDER)) {
-			throw new NotAllowedException("Not allowed to create a session");
-		}*/
-
-		Integer providerId= person.getId();
-		List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(providerId);
-		List<Session> conflictingSession=futureSession.stream().
-				filter(session1->session1.getDate().isEqual(session.getDate()) &&
-						session1.getStartTime().equals(session.getStartTime())).collect(Collectors.toList());
 		if (person.hasRole(RoleType.ADMIN)) {
+			Person provider =personRepository.findByEmailOne(providerEmail);
+			Integer providerId= provider.getId();
+			List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(providerId);
+			List<Session> conflictingSession=futureSession.stream().
+					filter(session1->session1.getDate().isEqual(session.getDate()) &&
+							session1.getStartTime().equals(session.getStartTime())).collect(Collectors.toList());
 
 			if(conflictingSession.isEmpty())
 			{
+
+				session.setProvider(provider);
 				return sessionRepository.save(session);
 			}
 			else
@@ -114,6 +113,12 @@ public class SessionServiceImpl implements SessionService {
 		}
 
 		else{
+
+			Integer providerId= person.getId();
+			List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(providerId);
+			List<Session> conflictingSession=futureSession.stream().
+					filter(session1->session1.getDate().isEqual(session.getDate()) &&
+							session1.getStartTime().equals(session.getStartTime())).collect(Collectors.toList());
 
 			session.setProvider(person);
 
@@ -132,25 +137,23 @@ public class SessionServiceImpl implements SessionService {
 
 
 	@Override
-	public Session updateSession(Integer sessionId, Session session, String providerEMail)
+	public Session updateSession(Integer sessionId, Session session, String providerEMail, String personEMail)
 			throws TimeConflictException, NotAllowedException, NotFoundException {
 		// TODO Auto-generated method stub
 		Session entity = sessionRepository.findById(sessionId).orElseThrow(new NotFoundException("Session is not found"));
 		session.setId(sessionId);
-
-		Person person = (Person) personRepository.findByEmailOne(providerEMail);
-		session.setProvider(person);
+		Person person = (Person) personRepository.findByEmailOne(personEMail);
 		Integer personId = person.getId();
 
-		Integer providerId = entity.getProvider().getId();
-		List<Session> futureSession = sessionRepository.findFutureSessionsByProviderId(providerId);
-		System.out.println(providerId);
-		List<Session> conflictingSession=futureSession.stream().
-				filter(session1->session1.getDate().isEqual(session.getDate()) &&
-						session1.getStartTime().equals(session.getStartTime())).collect(Collectors.toList());
-
 		if (person.hasRole(RoleType.ADMIN)) {
+			Person provider =personRepository.findByEmailOne(providerEMail);
+			session.setProvider(provider);
+			Integer providerId = entity.getProvider().getId();
+			List<Session> futureSession = sessionRepository.findFutureSessionsByProviderId(providerId);
 
+			List<Session> conflictingSession=futureSession.stream().
+					filter(session1->session1.getDate().isEqual(session.getDate()) &&
+							session1.getStartTime().equals(session.getStartTime())).collect(Collectors.toList());
 
 			if (conflictingSession.isEmpty()) {
 				return sessionRepository.save(session);
@@ -158,10 +161,21 @@ public class SessionServiceImpl implements SessionService {
 				throw new TimeConflictException("Session Time already occupied");
 			}
 		} else {
+
+			Person provider =person;
+			Integer providerId = provider.getId();
+			List<Session> futureSession = sessionRepository.findFutureSessionsByProviderId(providerId);
+
+			List<Session> conflictingSession=futureSession.stream().
+					filter(session1->session1.getDate().isEqual(session.getDate()) &&
+							session1.getStartTime().equals(session.getStartTime())).collect(Collectors.toList());
+
 				if (entity.getProvider().getId() != personId) {
 					throw new NotAllowedException("Not allowed to update this session");
 				}
 				if (sessionId.equals(session.getId())) {
+
+					session.setProvider(provider);
 					return sessionRepository.save(session);
 				}
 				else {
