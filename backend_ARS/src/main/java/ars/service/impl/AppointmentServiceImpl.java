@@ -43,8 +43,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		
 		Person client = personRepository.findByEmailOne(email);
 		
-		if(client==null) {
-			throw new NotFoundException("!!ERROR!! No person with this id");}
+		if(client==null) { throw new NotFoundException("!!ERROR!! No person with this id");}
 		
 		if(!client.getRoles().contains(RoleType.CUSTOMER)) { 
 			throw new NotFoundException("!!ERROR!! Only customers can create appointments");}
@@ -52,7 +51,8 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		Session requestedSession = sessionRepository.findById(sessionId)
 									.orElseThrow(()->new NotFoundException("!!ERROR!! No session with this id"));
 		
-		LocalDateTime requestedSessionDateTime = LocalDateTime.of(requestedSession.getDate(),requestedSession.getStartTime());
+		LocalDateTime requestedSessionDateTime = LocalDateTime.of(requestedSession.getDate(),
+																	requestedSession.getStartTime());
 		
 		if(requestedSessionDateTime.isBefore(LocalDateTime.now())) {
 			throw new TimeConflictException("!!ERROR!! Can only create appointments for future sessions");
@@ -65,14 +65,14 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		}
 		appointmentRepository.save(newAppointment);
 		return newAppointment;
-		
 	}
+	
 	@Override
 	public Appointment deleteAppointment(String email , Integer appointmentId) throws NotFoundException, NotAllowedException, TimeConflictException {
+		
 		Person personTryingToDelete = personRepository.findByEmailOne(email);
-		if(personTryingToDelete==null) {
-			throw new NotFoundException("!!ERROR!! No person with this id");
-		}
+		if(personTryingToDelete==null)	throw new NotFoundException("!!ERROR!! No person with this id");
+		
 		if(personTryingToDelete.getRoles().stream().noneMatch(r->r.equals(RoleType.ADMIN)||r.equals(RoleType.CUSTOMER))) {
 			throw new NotAllowedException("Only Admins and Clients can delete an appointment");
 		}
@@ -87,7 +87,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		}
 	
 		if( LocalDateTime.now().isAfter(appDateTime.minusHours(48)) &&
-			!personTryingToDelete.getRoles().contains(RoleType.ADMIN) ){
+					!personTryingToDelete.getRoles().contains(RoleType.ADMIN) ){
 				throw new TimeConflictException("!!ERROR!! Only Admins can delete a an Appointment within 48hours of session");
 		}
 		
@@ -155,8 +155,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		List<Appointment> confirmedAppointmentList = 
 				appointmentRepository.findAppointmentsBySessionId(sessionId, Status.CONFIRMED);
 		
-		if (confirmedAppointmentList.size() >= 1) 
-			throw new NotAllowedException("Session already has a confirmed appointment");
+		if (confirmedAppointmentList.size() >= 1) throw new NotAllowedException("Session already has a confirmed appointment");
 		
 		List<Appointment> pendingAppointmentList = 
 				appointmentRepository.findAppointmentsBySessionId(sessionId, Status.PENDING);
