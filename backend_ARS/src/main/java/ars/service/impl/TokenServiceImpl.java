@@ -25,22 +25,27 @@ public class TokenServiceImpl implements TokenService {
 		return tokenRepository.findAll();
 	}
 	
+	@Override
 	public List<Token> findAllTokensByPerson(Integer personId) {
 		return tokenRepository.findByPerson(personId);
 	}
 
-	public Optional<Token> findById(String token) {
+	@Override
+	public Optional<Token> findTokenById(String token) {
 		return tokenRepository.findById(token);
 	}
 	
+	@Override
 	public Token createToken(Token token) {
 		return tokenRepository.save(token);
 	}
 	
+	@Override
 	public Token updateToken(Token token) {
 		return tokenRepository.save(token);
 	}
 	
+	@Override
 	public List<Token> updateAllToken(List<Token> tokens) {
 		return tokenRepository.saveAll(tokens);
 	}

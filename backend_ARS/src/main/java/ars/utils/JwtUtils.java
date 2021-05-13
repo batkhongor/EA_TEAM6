@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import ars.domain.Person;
 import ars.domain.Token;
+import ars.service.TokenService;
 import ars.service.impl.TokenServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -25,13 +26,10 @@ public class JwtUtils {
 	private SecretKey SECRET_KEY;
 	
 	@Autowired
-	private TokenServiceImpl tokenServiceImpl;
+	private TokenService tokenServiceImpl;
 	
 	public JwtUtils() {
 		this.SECRET_KEY=Keys.secretKeyFor(SignatureAlgorithm.HS256);
-		System.out.println("____________________");
-		System.out.println(SECRET_KEY);
-		System.out.println("____________________");
 	}
 
 	public String extractUsername(String token) {
@@ -69,7 +67,8 @@ public class JwtUtils {
 	}
 	
 	private boolean isActive(String token) {
-		Token jwt_token= tokenServiceImpl.findById(token).orElse(null);
+		Token jwt_token= tokenServiceImpl.findTokenById(token).orElse(null);
+		
 		return jwt_token.isValid();
 	}
 	
