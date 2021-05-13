@@ -60,7 +60,7 @@ public interface SessionService {
 	 * @param providerEMail
 	 * @return
 	 */
-	Session createSession(Session session, String providerEMail) throws TimeConflictException, NotAllowedException;
+	Session createSession(Session session, String providerEmail, String personEMail) throws TimeConflictException, NotAllowedException;
 
 	/**
 	 * Update a Session for the person/provider. if the person is not a Provider
@@ -71,7 +71,7 @@ public interface SessionService {
 	 * @param providerEMail
 	 * @return
 	 */
-	Session updateSession(Integer sessionId, Session session, String providerEMail)
+	Session updateSession(Integer sessionId, Session session, String providerEMail, String personEMail)
 			throws TimeConflictException, NotAllowedException, NotFoundException;
 
 	/**
