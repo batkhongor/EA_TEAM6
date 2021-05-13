@@ -1,7 +1,7 @@
 package ars.domain;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.time.LocalTime;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -28,6 +28,7 @@ public class Appointment {
 	private Integer id;
 	
 	private LocalDate createdDate;
+	private LocalTime createdTime;
 	private LocalDate confirmedDate;
 	
 	@Enumerated(EnumType.STRING)

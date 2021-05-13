@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ars.domain.Appointment;
 import ars.domain.Person;
@@ -22,7 +23,7 @@ import ars.service.AppointmentService;
 import ars.service.EmailService;
 
 //SERVICE
-@Service
+@Service @Transactional
 public class AppointmentServiceImpl implements AppointmentService	 {
 	@Autowired
 	AppointmentRepository appointmentRepository;
