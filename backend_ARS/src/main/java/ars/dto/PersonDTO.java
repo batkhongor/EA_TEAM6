@@ -9,6 +9,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ars.domain.RoleType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
