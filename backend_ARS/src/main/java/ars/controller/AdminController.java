@@ -126,8 +126,8 @@ public class AdminController {
 	}
 
 	@DeleteMapping("/sessions/{id}")
-	public void deleteSession(@PathVariable("id") Integer sessionId) {
-		sessionService.deleteSession(sessionId);
+	public void deleteSession(@PathVariable("id") Integer sessionId, Authentication authentication) throws NotFoundException, NotAllowedException {
+		sessionService.deleteSession(sessionId, authentication.getName());
 	}
 
 	/* </SESSION> */
