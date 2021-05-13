@@ -49,8 +49,8 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		
 		if(client==null) { throw new NotFoundException("!!ERROR!! No person with this id");}
 		
-		if(!client.getRoles().contains(RoleType.CUSTOMER)) { 
-			throw new NotFoundException("!!ERROR!! Only customers can create appointments");}
+//		if(!client.getRoles().contains(RoleType.CUSTOMER)) { 
+//			throw new NotFoundException("!!ERROR!! Only customers can create appointments");}
 		
 		Session requestedSession = sessionRepository.findById(sessionId)
 									.orElseThrow(()->new NotFoundException("!!ERROR!! No session with this id"));
