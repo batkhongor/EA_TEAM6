@@ -20,6 +20,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 	
 	@Query("select a from Appointment a "
 			+ "where a.session.id = :sessionId and a.status = :status "
-			+ "order by a.createdDate ")
+			+ "order by a.createdDate, a.createdTime ")
 	public List<Appointment> findAppointmentsBySessionId(Integer sessionId, Status status);
 }

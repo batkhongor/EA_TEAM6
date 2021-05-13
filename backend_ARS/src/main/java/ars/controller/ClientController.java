@@ -45,7 +45,7 @@ public class ClientController {
 	@PostMapping("/sessions/{session_id}/appointments")
 	private Appointment createAppointment(
 			Authentication authentication, 
-			@PathVariable(name = "session_id") Integer sessionId) throws NotFoundException {
+			@PathVariable(name = "session_id") Integer sessionId) throws NotFoundException, TimeConflictException {
 		return appointmentService.createAppointment(authentication.getName(), sessionId);
 	}
 	
