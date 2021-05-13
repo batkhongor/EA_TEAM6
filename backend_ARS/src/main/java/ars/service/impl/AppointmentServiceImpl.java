@@ -173,6 +173,12 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			
 			appointmentRepository.save(toConfirm);
 		}
+
+	}
+
+	@Override
+	public List<Appointment> findAllAppointmentsBySessionId(Integer sessionId) {
+		return appointmentRepository.findAllAppointmentsBySessionId(sessionId);
 	}
 
 	@Override

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -61,14 +60,12 @@ public class StartupRunner implements CommandLineRunner {
 		List<Person> providersList = new ArrayList<>();
 		providersList.addAll(Arrays.asList(provider1,provider2,provider3));
 
-
 		LocalDate today = LocalDate.now();
 
 		// ------------ RANDOM SESSIONS ------------// Assigning providers to sessions by picking them randomly from the list
-		for (int time = 16; time < 24; time++) {
-			int index =(int)(Math.random()*providersList.size());
-			Session session1 = new Session(today.plus(time, ChronoUnit.DAYS), LocalTime.of(time, 0), 30, "Iowa",
-					providersList.get(index));
+		for (int time = 8; time < 16; time++) {
+			Session session1 = new Session(today.plus((time-7), ChronoUnit.DAYS), LocalTime.of(time, 0), 30, "Iowa",
+														providersList.get( (int)(Math.random()*providersList.size())) );
 			sessionRepository.save(session1);
 		}
 
