@@ -1,6 +1,9 @@
 package ars.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import ars.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,68 +62,120 @@ public class SessionServiceImpl implements SessionService {
 	@Override
 	public Session createSession(Session session, String providerEMail)
 			throws TimeConflictException, NotAllowedException {
-		Person person = personRepository.findByEmailOne(providerEMail);
+
+		Person person = (Person) personRepository.findByEmailOne(providerEMail);
 
 		if (!person.hasRole(RoleType.PROVIDER)) {
 			throw new NotAllowedException("Not allowed to create a session");
-		}
-		session.setProvider(person);
-
-
-
-		if(sessionRepository.findFutureSessions().stream()
-				.filter(session1-> session1.getProvider()== session.getProvider()&&
-						session1.getDate() ==session.getDate() &&
-						session1.getStartTime()==session.getStartTime()).findAny()!=null)
-		{
-				throw new TimeConflictException("time is already occupied by another session");
-		}
-       /* else if(sessionRepository.findFutureSessions().stream()
-				.filter(session1-> session1.getProvider()== session.getProvider()&&
-						session1.getDate() ==session.getDate() &&
-						(session1.getStartTime()+duration)==session.getStartTime()).findAny()!=null)*/
-
-
-		return sessionRepository.save(session);
 	}
+
+		if (person.hasRole(RoleType.ADMIN)) {
+
+			Integer providerId= session.getProvider().getId();
+			List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(providerId);
+			List<Session> conflictingSession=futureSession.stream().
+					filter(session1->session1.getDate()==session.getDate() &&
+					session1.getStartTime()==session.getStartTime()).collect(Collectors.toList());
+
+
+			if(conflictingSession.isEmpty())
+			{
+				return sessionRepository.save(session);
+			}
+
+			else
+			{
+				throw new TimeConflictException("Session Time already occupied");
+			}
+		}
+
+		else{
+
+			session.setProvider(person);
+		List<Session> futureSession= sessionRepository.findFutureSessions();
+		//List<Session> futureSession1= futureSession.stream().filter(session1->session1.getProvider().getId()==person.getId()).collect(Collectors.toList());
+			List<Session> futureSession1= sessionRepository.findFutureSessionsByProviderId(person.getId());
+
+
+		List<Session> conflictingSession=futureSession1.stream().filter(session1->session1.getDate() ==session.getDate() &&
+				session1.getStartTime()==session.getStartTime()).collect(Collectors.toList());
+		if(conflictingSession.isEmpty())
+			{
+				return sessionRepository.save(session);
+			}
+
+				else
+				{
+					throw new TimeConflictException("Session Time already occupied");
+				}
+
+
+		}
+
+
+
+	}
+
 
 	@Override
 	public Session updateSession(Integer sessionId, Session session, String providerEMail)
 			throws TimeConflictException, NotAllowedException, NotFoundException {
 		// TODO Auto-generated method stub
-
-		Person provider = (Person) personRepository.findByEmailOne(providerEMail);
-		Integer providerId = provider.getId();
-
 		Session entity = sessionRepository.findById(sessionId).orElseThrow(new NotFoundException("Session is not found"));
 
-		if(sessionRepository.findById(sessionId).get()
-				.getProvider().getId() == providerId)
-		{
-			throw new NotAllowedException("Not allowed to update this session");
-		}
-		if (sessionId.equals(session.getId())) {
-			return sessionRepository.save(session);
-		} else {
-			throw new NotFoundException("Session missmatch");
-		}
+		Person person = (Person) personRepository.findByEmailOne(providerEMail);
+		Integer personId = person.getId();
 
+		if (person.hasRole(RoleType.ADMIN)) {
+
+			Integer providerId= session.getProvider().getId();
+			List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(providerId);
+			List<Session> conflictingSession=futureSession.stream().
+					filter(session1->session1.getDate()==session.getDate() &&
+							session1.getStartTime()==session.getStartTime()).collect(Collectors.toList());
+
+
+			if(conflictingSession.isEmpty())
+			{
+				return sessionRepository.save(session);
+			}
+
+			else
+			{
+				throw new TimeConflictException("Session Time already occupied");
+			}
+		}
+		else {
+			if (entity.getProvider().getId() != personId) {
+				throw new NotAllowedException("Not allowed to update this session");
+			}
+			if (sessionId.equals(session.getId())) {
+				return sessionRepository.save(session);
+			} else {
+				throw new NotFoundException("Session missmatch");
+			}
+		}
 	}
 
 	@Override
-	public void deleteSession(Integer sessionId, String providerEMail) throws NotAllowedException {
+	public void deleteSession(Integer sessionId, String providerEMail) throws NotAllowedException, NotFoundException {
 		// TODO Auto-generated method stub
-
-		Person provider = (Person) personRepository.findByEmailOne(providerEMail);
-		Integer providerId = provider.getId();
-
-		if (sessionRepository.findById(sessionId).get().getProvider().getId() == providerId) {
+		Person person = (Person) personRepository.findByEmailOne(providerEMail);
+		Session session = sessionRepository.findById(sessionId).orElseThrow(new NotFoundException("Session is not found"));
+		Integer personId = person.getId();
+		if (person.hasRole(RoleType.ADMIN)) {
 
 			sessionRepository.deleteById(sessionId);
-		} else {
-			throw new NotAllowedException("Not allowed to delete this session");
 		}
 
+		else {
+			if (session.getProvider().getId() == personId) {
+				sessionRepository.deleteById(sessionId);
+			} else {
+				throw new NotAllowedException("Not allowed to delete this session");
+			}
+
+		}
 	}
 
 	@Override

@@ -78,7 +78,7 @@ public interface SessionService {
 	 * @param providerEMail
 	 * @return
 	 */
-	void deleteSession(Integer sessionId, String providerEMail) throws NotAllowedException;
+	void deleteSession(Integer sessionId, String providerEMail) throws NotAllowedException, NotFoundException;
 
 	/**
 	 * Deletes a Session. if the person is not a Provider then throws an
