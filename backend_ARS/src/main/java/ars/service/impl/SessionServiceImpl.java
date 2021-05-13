@@ -1,5 +1,6 @@
 package ars.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,7 +67,7 @@ public class SessionServiceImpl implements SessionService {
 
 		if (!person.hasRole(RoleType.PROVIDER)) {
 			throw new NotAllowedException("Not allowed to create a session");
-		}
+	}
 
 		if (person.hasRole(RoleType.ADMIN)) {
 
@@ -77,7 +78,7 @@ public class SessionServiceImpl implements SessionService {
 					session1.getStartTime()==session.getStartTime()).collect(Collectors.toList());
 
 
-			if(conflictingSession==null)
+			if(conflictingSession.isEmpty())
 			{
 				return sessionRepository.save(session);
 			}
@@ -91,12 +92,14 @@ public class SessionServiceImpl implements SessionService {
 		else{
 
 			session.setProvider(person);
+		List<Session> futureSession= sessionRepository.findFutureSessions();
+		//List<Session> futureSession1= futureSession.stream().filter(session1->session1.getProvider().getId()==person.getId()).collect(Collectors.toList());
+			List<Session> futureSession1= sessionRepository.findFutureSessionsByProviderId(person.getId());
 
-			List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(person.getId());
-			List<Session> conflictingSession=futureSession.stream().filter(session1->session1.getDate() ==session.getDate() &&
+
+		List<Session> conflictingSession=futureSession1.stream().filter(session1->session1.getDate() ==session.getDate() &&
 				session1.getStartTime()==session.getStartTime()).collect(Collectors.toList());
-
-				if(conflictingSession==null)
+		if(conflictingSession.isEmpty())
 			{
 				return sessionRepository.save(session);
 			}
@@ -108,7 +111,6 @@ public class SessionServiceImpl implements SessionService {
 
 
 		}
-
 
 
 
@@ -126,10 +128,25 @@ public class SessionServiceImpl implements SessionService {
 
 		if (person.hasRole(RoleType.ADMIN)) {
 
-			return sessionRepository.save(session);
+			Integer providerId= session.getProvider().getId();
+			List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(providerId);
+			List<Session> conflictingSession=futureSession.stream().
+					filter(session1->session1.getDate()==session.getDate() &&
+							session1.getStartTime()==session.getStartTime()).collect(Collectors.toList());
+
+
+			if(conflictingSession.isEmpty())
+			{
+				return sessionRepository.save(session);
+			}
+
+			else
+			{
+				throw new TimeConflictException("Session Time already occupied");
+			}
 		}
 		else {
-			if (entity.getProvider().getId() == personId) {
+			if (entity.getProvider().getId() != personId) {
 				throw new NotAllowedException("Not allowed to update this session");
 			}
 			if (sessionId.equals(session.getId())) {
@@ -143,18 +160,16 @@ public class SessionServiceImpl implements SessionService {
 	@Override
 	public void deleteSession(Integer sessionId, String providerEMail) throws NotAllowedException, NotFoundException {
 		// TODO Auto-generated method stub
-
-		Session entity = sessionRepository.findById(sessionId).orElseThrow(new NotFoundException("Session is not found"));
-
 		Person person = (Person) personRepository.findByEmailOne(providerEMail);
+		Session session = sessionRepository.findById(sessionId).orElseThrow(new NotFoundException("Session is not found"));
 		Integer personId = person.getId();
 		if (person.hasRole(RoleType.ADMIN)) {
 
 			sessionRepository.deleteById(sessionId);
 		}
-		else {
-			if (entity.getProvider().getId() == personId) {
 
+		else {
+			if (session.getProvider().getId() == personId) {
 				sessionRepository.deleteById(sessionId);
 			} else {
 				throw new NotAllowedException("Not allowed to delete this session");
