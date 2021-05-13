@@ -1,6 +1,7 @@
 package ars.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import javax.persistence.Entity;
@@ -29,7 +30,8 @@ public class Appointment {
 	
 	private LocalDate createdDate;
 	private LocalTime createdTime;
-	private LocalDate confirmedDate;
+	private LocalDateTime confirmedDateTime;
+
 	
 	@Enumerated(EnumType.STRING)
 	private Status status = Status.PENDING;
@@ -42,8 +44,9 @@ public class Appointment {
 	@JoinColumn(name="client_id")
 	private Person client;
 	
-	public Appointment(LocalDate createdDate, Person client, Session session) {
+	public Appointment(LocalDate createdDate, LocalTime createdTime, Person client, Session session) {
 		this.createdDate = createdDate;
+		this.createdTime = createdTime;
 		this.client = client;
 		this.session = session;
 	}

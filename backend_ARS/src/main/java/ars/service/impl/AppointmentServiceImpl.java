@@ -2,6 +2,7 @@ package ars.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,10 +60,11 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			throw new TimeConflictException("!!ERROR!! Can only create appointments for future sessions");
 		}
 	
-		Appointment newAppointment = new Appointment(LocalDate.now(), client, requestedSession);
+		Appointment newAppointment = new Appointment(LocalDate.now(), LocalTime.now(),client, requestedSession);
 		
 		if(requestedSession.getAppointmentRequests().isEmpty()) {
 			newAppointment.setStatus(Status.CONFIRMED);
+			newAppointment.setConfirmedDateTime(LocalDateTime.now());
 		}
 		appointmentRepository.save(newAppointment);
 		return newAppointment;
@@ -94,7 +96,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		
 		if(appointmentToDelete.getStatus().equals(Status.CONFIRMED)) {
 			appointmentToDelete.setStatus(Status.CANCELLED);
-			appointmentToDelete.setConfirmedDate(null);
+			appointmentToDelete.setConfirmedDateTime(null);
 			pickNewConfirmedAppointment(appointmentToDelete.getSession().getId());
 		} else {
 			appointmentToDelete.setStatus(Status.CANCELLED);
@@ -132,7 +134,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		Integer currentSessionId = appointmentToEdit.getSession().getId();
 		if(appointmentToEdit.getStatus().equals(Status.CONFIRMED)) {
 			appointmentToEdit.setStatus(Status.CANCELLED);
-			appointmentToEdit.setConfirmedDate(null);
+			appointmentToEdit.setConfirmedDateTime(null);
 			pickNewConfirmedAppointment(currentSessionId);
 		}
 		
@@ -144,7 +146,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		}
 		if(newSession.getAppointmentRequests().size()==1) {
 			appointmentToEdit.setStatus(Status.CONFIRMED);
-			appointmentToEdit.setConfirmedDate(LocalDate.now());
+			appointmentToEdit.setConfirmedDateTime(LocalDateTime.now());
 		}
 		appointmentRepository.save(appointmentToEdit);
 		return appointmentToEdit;
@@ -165,7 +167,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			Appointment toConfirm = pendingAppointmentList.get(0);
 			
 			toConfirm.setStatus(Status.CONFIRMED);
-			toConfirm.setConfirmedDate(LocalDate.now());
+			toConfirm.setConfirmedDateTime(LocalDateTime.now());
 			
 			appointmentRepository.save(toConfirm);
 		}
