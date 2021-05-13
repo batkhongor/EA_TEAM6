@@ -30,7 +30,8 @@ public class Appointment {
 	
 	private LocalDate createdDate;
 	private LocalTime createdTime;
-	private LocalDateTime confirmedDateTime;
+	private LocalDate confirmedDate;
+	private LocalTime confirmedTime;
 
 	
 	@Enumerated(EnumType.STRING)

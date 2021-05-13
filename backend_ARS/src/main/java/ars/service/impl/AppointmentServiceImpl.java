@@ -64,7 +64,8 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		
 		if(requestedSession.getAppointmentRequests().isEmpty()) {
 			newAppointment.setStatus(Status.CONFIRMED);
-			newAppointment.setConfirmedDateTime(LocalDateTime.now());
+			newAppointment.setConfirmedDate(LocalDate.now()); 
+			newAppointment.setConfirmedTime(LocalTime.now());
 		}
 		appointmentRepository.save(newAppointment);
 		return newAppointment;
@@ -96,7 +97,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		
 		if(appointmentToDelete.getStatus().equals(Status.CONFIRMED)) {
 			appointmentToDelete.setStatus(Status.CANCELLED);
-			appointmentToDelete.setConfirmedDateTime(null);
+			appointmentToDelete.setConfirmedDate(null); appointmentToDelete.setConfirmedTime(null);
 			pickNewConfirmedAppointment(appointmentToDelete.getSession().getId());
 		} else {
 			appointmentToDelete.setStatus(Status.CANCELLED);
@@ -134,7 +135,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		Integer currentSessionId = appointmentToEdit.getSession().getId();
 		if(appointmentToEdit.getStatus().equals(Status.CONFIRMED)) {
 			appointmentToEdit.setStatus(Status.CANCELLED);
-			appointmentToEdit.setConfirmedDateTime(null);
+			appointmentToEdit.setConfirmedDate(null);  appointmentToEdit.setConfirmedTime(null); 
 			pickNewConfirmedAppointment(currentSessionId);
 		}
 		
@@ -146,7 +147,7 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		}
 		if(newSession.getAppointmentRequests().size()==1) {
 			appointmentToEdit.setStatus(Status.CONFIRMED);
-			appointmentToEdit.setConfirmedDateTime(LocalDateTime.now());
+			appointmentToEdit.setConfirmedDate(LocalDate.now());  appointmentToEdit.setConfirmedTime(LocalTime.now());
 		}
 		appointmentRepository.save(appointmentToEdit);
 		return appointmentToEdit;
@@ -167,7 +168,8 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 			Appointment toConfirm = pendingAppointmentList.get(0);
 			
 			toConfirm.setStatus(Status.CONFIRMED);
-			toConfirm.setConfirmedDateTime(LocalDateTime.now());
+			toConfirm.setConfirmedDate(LocalDate.now());
+			toConfirm.setConfirmedTime(LocalTime.now());
 			
 			appointmentRepository.save(toConfirm);
 		}
