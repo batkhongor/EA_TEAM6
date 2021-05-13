@@ -1,5 +1,7 @@
 package ars.advice;
 
+import java.time.LocalDateTime;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -43,6 +45,7 @@ public class EmailAdvice {
 				+ "\n Provider: " + appointment.getSession().getProvider().getEmail()
 				+ "\n Customer: " + appointment.getClient().getEmail()
 				+ "\n Status: " + appointment.getStatus()
+				+ "\n Time: " + LocalDateTime.now()
 				+ "\n ---------------------";
 	}
 }
