@@ -21,4 +21,6 @@ public interface AppointmentService {
 	Appointment editAppointment(String email, Integer appointmentId, Integer newSessionId) throws NotFoundException, NotAllowedException, TimeConflictException;
 	
 	Page<Appointment> findAllAppointments(Pageable pageable);
+	
+	List<Appointment> findAllAppointmentsBySessionId(Integer sessionId);
 }

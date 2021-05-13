@@ -71,14 +71,14 @@ public class ProviderController {
     @PostMapping("/sessions")
     public Session createSession(@Valid @RequestBody Session session,Authentication authentication) throws TimeConflictException, NotAllowedException {
 
-        return sessionServiceImpl.createSession(session,authentication.getName() );
+        return sessionServiceImpl.createSession(session,null, authentication.getName() );
     }
 
 
     @PutMapping("sessions/{id}")
     public Session updateSession(@PathVariable(name="id") Integer SessionId , @Valid @RequestBody Session session, Authentication authentication) throws NotFoundException, TimeConflictException, NotAllowedException {
 
-        return sessionServiceImpl.updateSession(SessionId, session, authentication.getName());
+        return sessionServiceImpl.updateSession(SessionId, session, null, authentication.getName());
 
 
 

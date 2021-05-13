@@ -110,18 +110,18 @@ public class AdminController {
 	//--------------------------------------------------------------------------------------
 
 	@PostMapping("/sessions")
-	public Session createSession(@Valid @RequestBody SessionDTO sessionDto)
+	public Session createSession(@Valid @RequestBody SessionDTO sessionDto, Authentication authentication)
 			throws TimeConflictException, NotAllowedException {
 		Session entity = convertToEntity(sessionDto);
-		entity = sessionService.createSession(entity, sessionDto.getProviderEMail());
+		entity = sessionService.createSession(entity, sessionDto.getProviderEMail(), authentication.getName());
 		return entity;
 	}
 
 	@PutMapping("/sessions/{id}")
-	public Session updateSession(@PathVariable("id") Integer sessionId, @Valid @RequestBody SessionDTO sessionDto)
+	public Session updateSession(@PathVariable("id") Integer sessionId, @Valid @RequestBody SessionDTO sessionDto,Authentication authentication)
 			throws TimeConflictException, NotAllowedException, NotFoundException {
 		Session entity = convertToEntity(sessionDto);
-		entity = sessionService.updateSession(sessionId, entity, sessionDto.getProviderEMail());
+		entity = sessionService.updateSession(sessionId, entity, sessionDto.getProviderEMail(),  authentication.getName());
 		return entity;
 	}
 
@@ -162,6 +162,12 @@ public class AdminController {
 		Appointment entity = appointmentService.editAppointment(authentication.getName(), appointmentId,
 				appointmentDto.getSessionId());
 		return entity;
+	}
+	@GetMapping("/sessions/{session_id}/appointments") //get only appointments in a particular session
+	private List<Appointment> findAllAppointmentInThisSession(
+			Authentication authentication, 
+			@PathVariable(name = "session_id") Integer sessionId) throws NotFoundException, TimeConflictException {
+		return appointmentService.findAllAppointmentsBySessionId(sessionId);
 	}
 
 	@DeleteMapping("/appointments/{id}")
