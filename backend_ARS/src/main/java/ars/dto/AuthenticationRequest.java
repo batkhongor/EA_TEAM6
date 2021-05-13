@@ -1,4 +1,4 @@
-package ars.domain;
+package ars.dto;
 
 public class AuthenticationRequest {
 
