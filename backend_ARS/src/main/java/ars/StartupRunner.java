@@ -43,6 +43,10 @@ public class StartupRunner implements CommandLineRunner {
 		person1.addRole(RoleType.ADMIN);
 		person1.addRole(RoleType.CUSTOMER);
 		
+		Person admin2 = new Person("Payman", "Salek", "psalek@mail.com", "payman", new HashSet<>());
+		personServiceImpl.createPerson(admin2);
+		admin2.addRole(RoleType.ADMIN);
+		
 		// ------------ PROVIDERS ------------
 		Person provider1 = new Person("Provider", "Mr", "brukeabebe2@gmail.com", "john", new HashSet<>());
 		provider1.addRole(RoleType.PROVIDER);
