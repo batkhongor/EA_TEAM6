@@ -157,7 +157,6 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 	
 	public void  pickNewConfirmedAppointment(Integer sessionId) throws NotAllowedException {
 
-		appointmentRepository.save(toConfirm);
 		List<Appointment> confirmedAppointmentList = 
 				appointmentRepository.findAppointmentsBySessionId(sessionId, Status.CONFIRMED);
 		
