@@ -124,17 +124,11 @@ public class AdminController {
 
 	/* <APPOINTMENT> */
 
-	@GetMapping(value = "/appointments", params = "paged=true")
+	@GetMapping(value = "/appointments")
 	public Page<Appointment> getAppointmentList(Pageable pageable) {
-		Page<Appointment> page = adminService.findAllAppointments(pageable);
+		Page<Appointment> page = appointmentService.findAllAppointments(pageable);
 		return page;
 	}
-
-//	@GetMapping(value = "/appointments", params = "paged=true")
-//	public Page<Appointment> getFutureAppointmentList(Pageable pageable) {
-//		Page<Appointment> page = appointmentService.findAll(pageable, true);
-//		return page;
-//	}
 
 //	@GetMapping("/appointments/{id}")
 //	public Appointment getAppointment(@PathVariable("id") Integer appointmentId) throws NotFoundException {
