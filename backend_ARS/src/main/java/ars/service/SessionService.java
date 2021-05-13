@@ -43,6 +43,10 @@ public interface SessionService {
 	 * @param sessionId
 	 * @return
 	 */
+
+	List<Session> findSessionForProvider(Integer ProviderId, String email) throws NotFoundException, NotAllowedException;
+
+
 	default Session getSession(Integer sessionId) throws NotFoundException {
 		throw new NotYetImplementedException();
 	}
