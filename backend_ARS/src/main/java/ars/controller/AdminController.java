@@ -99,6 +99,16 @@ public class AdminController {
 		return entity;
 	}
 
+	//------------GET SESSIONS FOR A PARTICULAR SESSION--------PLEASE DONT REMOVE
+	//Get Sessions for a certain provider  ..http://localhost:8009/admin/sessions/provider?providerId={id}
+	@GetMapping("/sessions/provider")
+	public List<Session> getSessionforProvider(@RequestParam(name = "providerId")  Integer providerId, Authentication authentication) throws NotFoundException, NotAllowedException {
+		List<Session> sessions = sessionService.findSessionForProvider(providerId, authentication.getName());
+		return sessions;
+	}
+
+	//--------------------------------------------------------------------------------------
+
 	@PostMapping("/sessions")
 	public Session createSession(@Valid @RequestBody SessionDTO sessionDto)
 			throws TimeConflictException, NotAllowedException {
