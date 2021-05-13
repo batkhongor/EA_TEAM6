@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -154,15 +155,16 @@ public class AdminController {
 		return entity;
 	}
 
-	@PutMapping("/appointments/{id}")
-	public Appointment updateAppointment(Authentication authentication, @PathVariable("id") Integer appointmentId,
-			@Valid @RequestBody AppointmentDTO appointmentDto)
+	@PatchMapping("/sessions/{session_id}/appointments/{appointment_id}")
+	public Appointment updateAppointment(Authentication authentication, @PathVariable("appointment_id") Integer appointmentId,
+			@PathVariable(name = "session_id") Integer session_id)
 			throws TimeConflictException, NotAllowedException, NotFoundException {
 
 		Appointment entity = appointmentService.editAppointment(authentication.getName(), appointmentId,
-				appointmentDto.getSessionId());
+				session_id);
 		return entity;
 	}
+	
 	@GetMapping("/sessions/{session_id}/appointments") //get only appointments in a particular session
 	private List<Appointment> findAllAppointmentInThisSession(
 			Authentication authentication, 
