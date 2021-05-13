@@ -99,7 +99,7 @@ public class AdminController {
 		return entity;
 	}
 
-	//------------GET SESSIONS FOR A PARTICULAR SESSION--------PLEASE DONT REMOVE
+	//------------GET SESSIONS FOR A PARTICULAR PROVIDER--------PLEASE DONT REMOVE
 	//Get Sessions for a certain provider  ..http://localhost:8009/admin/sessions/provider?providerId={id}
 	@GetMapping("/sessions/provider")
 	public List<Session> getSessionforProvider(@RequestParam(name = "providerId")  Integer providerId, Authentication authentication) throws NotFoundException, NotAllowedException {

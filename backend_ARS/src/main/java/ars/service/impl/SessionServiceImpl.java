@@ -92,24 +92,21 @@ public class SessionServiceImpl implements SessionService {
 
 		Person person = (Person) personRepository.findByEmailOne(providerEMail);
 
-		if (!person.hasRole(RoleType.PROVIDER)) {
+	/*	if (!person.hasRole(RoleType.PROVIDER)) {
 			throw new NotAllowedException("Not allowed to create a session");
-	}
+		}*/
 
+		Integer providerId= person.getId();
+		List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(providerId);
+		List<Session> conflictingSession=futureSession.stream().
+				filter(session1->session1.getDate().isEqual(session.getDate()) &&
+						session1.getStartTime().equals(session.getStartTime())).collect(Collectors.toList());
 		if (person.hasRole(RoleType.ADMIN)) {
-
-			Integer providerId= session.getProvider().getId();
-			List<Session> futureSession= sessionRepository.findFutureSessionsByProviderId(providerId);
-			List<Session> conflictingSession=futureSession.stream().
-					filter(session1->session1.getDate()==session.getDate() &&
-					session1.getStartTime()==session.getStartTime()).collect(Collectors.toList());
-
 
 			if(conflictingSession.isEmpty())
 			{
 				return sessionRepository.save(session);
 			}
-
 			else
 			{
 				throw new TimeConflictException("Session Time already occupied");
@@ -119,18 +116,11 @@ public class SessionServiceImpl implements SessionService {
 		else{
 
 			session.setProvider(person);
-		List<Session> futureSession= sessionRepository.findFutureSessions();
-		//List<Session> futureSession1= futureSession.stream().filter(session1->session1.getProvider().getId()==person.getId()).collect(Collectors.toList());
-			List<Session> futureSession1= sessionRepository.findFutureSessionsByProviderId(person.getId());
 
-
-		List<Session> conflictingSession=futureSession1.stream().filter(session1->session1.getDate() ==session.getDate() &&
-				session1.getStartTime()==session.getStartTime()).collect(Collectors.toList());
-		if(conflictingSession.isEmpty())
-			{
-				return sessionRepository.save(session);
-			}
-
+				if(conflictingSession.isEmpty())
+					{
+						return sessionRepository.save(session);
+				    }
 				else
 				{
 					throw new TimeConflictException("Session Time already occupied");
@@ -152,15 +142,14 @@ public class SessionServiceImpl implements SessionService {
 		session.setProvider(person);
 		Integer personId = person.getId();
 
-		if (person.hasRole(RoleType.ADMIN)) {
+		Integer providerId = entity.getProvider().getId();
+		List<Session> futureSession = sessionRepository.findFutureSessionsByProviderId(providerId);
+		System.out.println(providerId);
+		List<Session> conflictingSession=futureSession.stream().
+				filter(session1->session1.getDate().isEqual(session.getDate()) &&
+						session1.getStartTime().equals(session.getStartTime())).collect(Collectors.toList());
 
-			Integer providerId = entity.getProvider().getId();
-			List<Session> futureSession = sessionRepository.findFutureSessionsByProviderId(providerId);
-			System.out.println("ttt");
-			System.out.println(providerId);
-			List<Session> conflictingSession = futureSession.stream().
-					filter(session1 -> session1.getDate() == session.getDate() &&
-							session1.getStartTime() == session.getStartTime()).collect(Collectors.toList());
+		if (person.hasRole(RoleType.ADMIN)) {
 
 
 			if (conflictingSession.isEmpty()) {
