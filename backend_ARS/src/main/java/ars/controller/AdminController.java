@@ -163,6 +163,12 @@ public class AdminController {
 				appointmentDto.getSessionId());
 		return entity;
 	}
+	@GetMapping("/sessions/{session_id}/appointments") //get only appointments in a particular session
+	private List<Appointment> findAllAppointmentInThisSession(
+			Authentication authentication, 
+			@PathVariable(name = "session_id") Integer sessionId) throws NotFoundException, TimeConflictException {
+		return appointmentService.findAllAppointmentsBySessionId(sessionId);
+	}
 
 	@DeleteMapping("/appointments/{id}")
 	public Appointment deleteAppointment(@PathVariable("id") Integer appointmentId, Authentication authentication)
