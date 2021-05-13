@@ -60,6 +60,12 @@ public class ProviderController {
         return sessionServiceImpl.findAllByEmail(authentication.getName(), false);
     }
 
+    @GetMapping("/sessions/{id}")
+    public Session getSession(@PathVariable("id") Integer sessionId) throws NotFoundException {
+        Session entity = sessionServiceImpl.getSession(sessionId);
+        return entity;
+    }
+
 
 
     @PostMapping("/sessions")
