@@ -48,6 +48,13 @@ public class ClientController {
 		return clientService.addNewAppointment(authentication.getName(), sessionId);
 	}
 	
+	@GetMapping("/sessions/{session_id}/appointments")
+	private List<Appointment> findAllAppointmentInThisSession(
+			Authentication authentication, 
+			@PathVariable(name = "session_id") Integer sessionId) throws NotFoundException, TimeConflictException {
+		return appointmentService.findAllAppointmentsBySessionId(sessionId);
+	}
+	
 	@PutMapping("/sessions/{session_id}/appointments/{appointment_id}")
 	private String updateAppointment(
 			Authentication authentication, 

@@ -16,8 +16,14 @@ public interface AppointmentService {
 	
 	Appointment editAppointment(String email, Integer appointmentId, Integer newSessionId) throws NotFoundException, NotAllowedException, TimeConflictException;
 	
+<<<<<<< Updated upstream
 	void pickNewConfirmedAppointment(Integer sessionId); 
 	
 	
 	
+=======
+	Page<Appointment> findAllAppointments(Pageable pageable);
+	
+	List<Appointment> findAllAppointmentsBySessionId(Integer sessionId);
+>>>>>>> Stashed changes
 }

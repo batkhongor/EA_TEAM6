@@ -104,6 +104,55 @@ public class AdminController {
 
 	/* </SESSION> */
 
+<<<<<<< Updated upstream
+=======
+	/* <APPOINTMENT> */
+
+	@GetMapping(value = "/appointments")
+	public Page<Appointment> getAppointmentList(Pageable pageable) {
+		Page<Appointment> page = appointmentService.findAllAppointments(pageable);
+		return page;
+	}
+
+//	@GetMapping("/appointments/{id}")
+//	public Appointment getAppointment(@PathVariable("id") Integer appointmentId) throws NotFoundException {
+//		Appointment entity = appointmentService.getAppointment(appointmentId);
+//		return entity;
+//	}
+
+	@PostMapping("/appointments")
+	public Appointment createAppointment(@Valid @RequestBody AppointmentDTO appointmentDto)
+			throws TimeConflictException, NotAllowedException, NotFoundException {
+		Appointment entity = appointmentService.createAppointment(appointmentDto.getClientEMail(),
+				appointmentDto.getSessionId());
+		return entity;
+	}
+
+	@PutMapping("/appointments/{id}")
+	public Appointment updateAppointment(Authentication authentication, @PathVariable("id") Integer appointmentId,
+			@Valid @RequestBody AppointmentDTO appointmentDto)
+			throws TimeConflictException, NotAllowedException, NotFoundException {
+
+		Appointment entity = appointmentService.editAppointment(authentication.getName(), appointmentId,
+				appointmentDto.getSessionId());
+		return entity;
+	}
+	@GetMapping("/sessions/{session_id}/appointments") //get only appointments in a particular session
+	private List<Appointment> findAllAppointmentInThisSession(
+			Authentication authentication, 
+			@PathVariable(name = "session_id") Integer sessionId) throws NotFoundException, TimeConflictException {
+		return appointmentService.findAllAppointmentsBySessionId(sessionId);
+	}
+
+	@DeleteMapping("/appointments/{id}")
+	public Appointment deleteAppointment(@PathVariable("id") Integer appointmentId, Authentication authentication)
+			throws NotFoundException, NotAllowedException, TimeConflictException {
+		return appointmentService.deleteAppointment(authentication.getName(), appointmentId);
+	}
+
+	/* </APPOINTMENT> */
+
+>>>>>>> Stashed changes
 	/* <private methods> */
 	private PersonDTO convertToPersonDto(Person person) {
 		PersonDTO pDto = modelMapper.map(person, PersonDTO.class);

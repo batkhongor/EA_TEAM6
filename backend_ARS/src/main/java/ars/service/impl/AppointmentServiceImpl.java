@@ -150,7 +150,15 @@ public class AppointmentServiceImpl implements AppointmentService	 {
 		toConfirm.setStatus(Status.CONFIRMED);
 		toConfirm.setConfirmedDate(LocalDate.now());
 
+<<<<<<< Updated upstream
 		appointmentRepository.save(toConfirm);
 	}
+=======
+	@Override
+	public List<Appointment> findAllAppointmentsBySessionId(Integer sessionId) {
+		return appointmentRepository.findAllAppointmentsBySessionId(sessionId);
+	}
+
+>>>>>>> Stashed changes
 
 }
