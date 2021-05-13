@@ -1,6 +1,6 @@
 package ars.repository;
 
-import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,9 +11,9 @@ import ars.domain.Person;
 @Repository
 @Transactional
 public interface PersonRepository extends JpaRepository<Person, Integer> {
-	public List<Person> findByEmail(String email);
+	public Optional<Person> findByEmail(String email);
 
 	public default Person findByEmailOne(String email) {
-		return findByEmail(email).get(0);
+		return findByEmail(email).get();
 	}
 }
