@@ -18,6 +18,8 @@ import ars.domain.AuthenticationRequest;
 import ars.domain.AuthenticationResponse;
 import ars.domain.Person;
 import ars.domain.Token;
+import ars.service.PersonService;
+import ars.service.TokenService;
 import ars.service.impl.PersonServiceImpl;
 import ars.service.impl.TokenServiceImpl;
 import ars.service.impl.UserDetailServiceImpl;
@@ -48,10 +50,11 @@ public class SecurityController {
 		// invalidate token on database when user logout successfully
 		
 		String jwt_token=SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-		Token token=tokenServiceImpl.findById(jwt_token).orElse(null);
+		Token token=tokenServiceImpl.findTokenById(jwt_token).get();
 		token.setValid();
 		
 		tokenServiceImpl.updateToken(token);
+		SecurityContextHolder.getContext().setAuthentication(null);
 		
 		return ResponseEntity.ok("logged out");
 	}
@@ -72,8 +75,9 @@ public class SecurityController {
 			token.setValid();
 		}
 		tokenServiceImpl.updateAllToken(tokens);
+		SecurityContextHolder.getContext().setAuthentication(null);
 		
-		return ResponseEntity.ok("logged out");
+		return ResponseEntity.ok("logged out from all devices");
 	}
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)

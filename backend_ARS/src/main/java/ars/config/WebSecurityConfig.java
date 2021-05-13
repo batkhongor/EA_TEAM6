@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import ars.domain.RoleType;
@@ -51,14 +53,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.authorizeRequests()
 			.antMatchers("/favicon.ico").permitAll()
 			.antMatchers("/authenticate").permitAll()
-			.antMatchers("/provider/*").hasAnyAuthority(RoleType.PROVIDER.toString())
+			.antMatchers("/**").authenticated()
+			.antMatchers("/provider/**").hasAnyAuthority(RoleType.PROVIDER.toString())
 			.antMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.toString())
-			.antMatchers("/logout").authenticated()
 			.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and().csrf().disable()
-			
-			/*
-			.formLogin()*/
+			.exceptionHandling()
+			.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
 			;
 			
 			http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
